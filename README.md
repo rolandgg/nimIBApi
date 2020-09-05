@@ -5,11 +5,11 @@ The client uses Nim's single-threaded async I/O framework to wrap the asyncronou
 
 This project is work in progress. So far, the following functionality is supported:
 
-*Receive account data
-*Query contract details
-*Basic order types (Market, Limit, Market-On-Close)
-*Subscribe to real-time data (price and shortsale data)
-*Request historical bar data
+* Receive account data
+* Query contract details
+* Basic order types (Market, Limit, Market-On-Close)
+* Subscribe to real-time data (price and shortsale data)
+* Request historical bar data
 
 It was only tested for trading stocks on US exchanges and against Gateway version 978, legacy API versions are not supported.
 
