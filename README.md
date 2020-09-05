@@ -5,14 +5,35 @@ The client uses Nim's single-threaded async I/O framework to wrap the asyncronou
 
 ## Examples
 
+Connecting a client to the gateway will immediately subscribe to account updates. The client will automatically keep the account state up-to-date, no API requests are needed. The account data can be accessed once the connection process is completed. In the example below, we define a contract for Apple stock on US exchanges and query Contract details for it.
+
 ```nim
 include ibApi
 
 var client = newIBClient()
-asyncCheck client.connect("127.0.0.1", 4002, 1)
-waitFor sleepAsync(2_000)
-echo client.account.netLiquidation
+waitFor client.connect("127.0.0.1", 4002, 1)
+echo client.account.netLiquidation #access the net liquidation value of the account
 var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
-var details = waitFor client.reqContractDetails(contract) 
-echo details[0].industry
+let details = waitFor client.reqContractDetails(contract) #request contract details
+echo details[0].industry #returns Apple's industry sector classification
+```
+
+To place an order, we also need to define an order object. The `placeOrder` function will return an `OrderTracker` reference, which will be updated automatically and allows to track the order execution process.
+
+```nim
+#buy 10 shares of Apple
+order.totalQuantity = 10
+order.orderType = OrderType.Market
+order.action = Action.Buy
+var orderTracker = waitFor client.placeOrder(contract, order)
+```
+
+Likewise, requesting real-time market data will return a `Ticker` reference, that will automatically be updated with incoming market price ticks.
+
+```nim
+#request top-of-book real-time data for Apple, including data on availability to short
+var ticker = waitFor client.reqMktData(contract, false, false, @[GenericTickType.ShortableData])
+waitFor sleepAsync(10_000) # wait a bit for ticks to come in
+echo ticker.bid
+echo ticker.ask # access the current bid/ask prices
 ```
