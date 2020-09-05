@@ -5,4 +5,14 @@ The client uses Nim's single-threaded async I/O framework to wrap the asyncronou
 
 ## Examples
 
+```nim
+include ibApi
 
+var client = newIBClient()
+asyncCheck client.connect("127.0.0.1", 4002, 1)
+waitFor sleepAsync(2_000)
+echo client.account.netLiquidation
+var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
+var details = waitFor client.reqContractDetails(contract) 
+echo details[0].industry
+```
