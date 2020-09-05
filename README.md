@@ -1,11 +1,23 @@
 # nimIBApi
-This is a Nim (www.nim-lang.org) client for the Interactive Brokers TraderWorkstation/Gateway API. It is a native implementation of the TCP-socket messaging protocol and not a wrapper of the official C++ API, thus avoiding its implementation flaws (like messages potentially getting stuck in an internal buffer).
+This is a Nim (www.nim-lang.org) client for the Interactive Brokers TraderWorkstation/Gateway API. It is a native implementation of the TCP socket messaging protocol and not a wrapper of the official C++ API, thus avoiding its implementation flaws (like messages potentially getting stuck in an internal buffer).
 
-The client uses Nim's single-threaded async I/O framework to wrap the asyncronous, streaming socket communication and expose a RESTlike API.
+The client uses Nim's single-threaded async I/O framework to wrap the asyncronous, streaming socket communication and exposes a RESTlike API.
+
+This project is work in progress. So far, the following functionality is supported:
+
+*Receive account data
+*Query contract details
+*Basic order types (Market, Limit, Market-On-Close)
+*Subscribe to real-time data (price and shortsale data)
+*Request historical bar data
+
+It was only tested for trading stocks on US exchanges and against Gateway version 978, legacy API versions are not supported.
+
+If you use this in a trading application, bear in mind that the client is single-threaded and constantly needs to keep spinning in order to process incoming messages in a timely manner. Thus, always use `sleepAsync` to avoid blocking the event loop.
 
 ## Examples
 
-Connecting a client to the gateway will immediately subscribe to account updates. The client will automatically keep the account state up-to-date, no API requests are needed. The account data can be accessed once the connection process is completed. In the example below, we define a contract for Apple stock on US exchanges and query Contract details for it.
+Connecting a client to the Gateway will immediately subscribe to account updates. The client will automatically keep the account state up-to-date, no API requests are needed. The account data can be accessed once the connection process is completed. In the example below, we define a contract for Apple stock on US exchanges and query contract details for it.
 
 ```nim
 include ibApi
@@ -28,7 +40,7 @@ order.action = Action.Buy
 var orderTracker = waitFor client.placeOrder(contract, order)
 ```
 
-Likewise, requesting real-time market data will return a `Ticker` reference, that will automatically be updated with incoming market price ticks.
+Likewise, requesting real-time market data will return a `Ticker` reference that will automatically be updated with incoming market price ticks.
 
 ```nim
 #request top-of-book real-time data for Apple, including data on availability to short
