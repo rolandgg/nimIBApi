@@ -1,6 +1,6 @@
 import ws, asyncdispatch, asynchttpserver, streams, strutils, parsecsv
 import json, sugar, sequtils, tables, times, math
-include ../ibApi
+import ../ibApi
 
 # Statistical arbitrage pairs-trading algorithm combined with a web-server streaming data to a brower frontend.
 # To make this work you will have to supply your own lists of stocks and pairs to trade.
