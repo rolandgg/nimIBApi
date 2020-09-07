@@ -4,7 +4,7 @@ import OrderTracker
 import bitops
 
 type
-    OrderId = int
+    OrderId* = int
 
 
 # Request handlers

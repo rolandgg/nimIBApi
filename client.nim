@@ -8,13 +8,12 @@ import tables, sets
 import utils, message, ibEnums, ibContractTypes, position, ibMarketDataTypes
 import ibTickTypes, ibOrderTypes, ibExecutionTypes
 import orderTracker, handlers, ticker
+import account
 include apiConstants
-include account
 
 type
     MssgCode = int
     ReqID = int
-    OrderID = int
     TickerID = int
     Portfolio = Table[int, Position]
     Response = ref object

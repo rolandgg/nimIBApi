@@ -20,7 +20,8 @@ If you use this in a trading application, bear in mind that the client is single
 Connecting a client to the Gateway will immediately subscribe to account updates. The client will automatically keep the account state up-to-date, no API requests are needed. The account data can be accessed once the connection process is completed. In the example below, we define a contract for Apple stock on US exchanges and query contract details for it.
 
 ```nim
-include ibApi
+import ibApi
+import asyncdispatch
 
 var client = newIBClient()
 waitFor client.connect("127.0.0.1", 4002, 1)
@@ -34,6 +35,7 @@ To place an order, we also need to define an order object. The `placeOrder` func
 
 ```nim
 #buy 10 shares of Apple
+var order = initOrder()
 order.totalQuantity = 10
 order.orderType = OrderType.Market
 order.action = Action.Buy
