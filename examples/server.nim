@@ -1,5 +1,5 @@
 import ws, asyncdispatch, asynchttpserver, streams, strutils, parsecsv
-import json, sugar, sequtils, tables, times, math
+import json, sugar, sequtils, tables, times, timezones, math
 import ../ibApi
 
 # Statistical arbitrage pairs-trading algorithm combined with a web-server streaming data to a brower frontend.
@@ -46,7 +46,7 @@ proc loadPairs(): seq[Pair] =
 
 proc main() =
     # variables
-
+    let ET = tz"America/New_York"
     var connections = newSeq[WebSocket]()
     let stocks = loadStocks()
     var contracts: Table[string, Contract] = initTable[string,Contract]()
@@ -263,6 +263,14 @@ proc main() =
             openPnL += trade.pnl
         equity += openPnL
 
+    proc run() {.async.} =
+        while runTrading:
+            let etTime = inZone(now(),ET)
+            if etTime.hour == 15 and etTime.minute == 30:
+                await calculateSignals()
+                await placeOrders()
+                await updateState()
+                await sleepAsync(60_000)
   
     proc cb(req: Request) {.async, gcsafe.} =
         if req.url.path == "/ws":

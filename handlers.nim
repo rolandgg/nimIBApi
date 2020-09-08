@@ -29,9 +29,10 @@ proc handle*[T](payload: seq[string]): T =
         contract.conId << fields
         result.minTick << fields
         result.mdSizeMultiplier << fields
-        result.priceMagnifier << fields
+        contract.multiplier << fields
         result.orderTypes << fields
         result.validExchanges << fields
+        result.priceMagnifier << fields
         result.underConId << fields
         result.longName << fields
         contract.primaryExchange << fields

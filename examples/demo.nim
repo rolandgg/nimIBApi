@@ -6,7 +6,7 @@ waitFor client.connect("127.0.0.1", 4002, 1)
 echo client.account.netLiquidation #access the net liquidation value of the account
 var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
 let details = waitFor client.reqContractDetails(contract) #request contract details
-echo details[0].industry #returns Apple's industry sector classification
+echo details[0].category #returns Apple's sector classification
 
 var order = initOrder()
 order.totalQuantity = 10

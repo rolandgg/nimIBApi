@@ -1,4 +1,5 @@
 import ibEnums, utils
+import strutils, times, timezones
 
 type
 
@@ -67,4 +68,18 @@ type
         issueDate*, nextOptionDate*, nextOptionType*, notes*: string
 
 
+
+proc parseLiquidHours*(contract: ContractDetails): seq[tuple[marketOpen: Datetime, marketClose: Datetime]] =
+    var tz: Timezone
+    if "EST" in contract.timeZoneId:
+        tz = tz"America/New_York"
+    else:
+        tz = utc()
+    let liquidHours = contract.liquidHours.split(";")
+    for day in liquidHours:
+        if "CLOSED" in day:
+            continue
+        let openClose = day.split("-")
+        if openClose.len == 2:
+            result.add((marketOpen: parse(openClose[0],"yyyyMMdd:hhmm",tz), marketClose:parse(openClose[1],"yyyyMMdd:hhmm",tz)))
 
