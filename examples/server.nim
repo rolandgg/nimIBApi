@@ -47,7 +47,7 @@ proc loadPairs(): seq[Pair] =
 proc main() =
     # variables
     let ET = tz"America/New_York"
-    var connections = newSeq[WebSocket]()
+    var ws: WebSocket
     let stocks = loadStocks()
     var contracts: Table[string, Contract] = initTable[string,Contract]()
     for stock in stocks:
@@ -63,7 +63,12 @@ proc main() =
     var equity, openPnL, closedPnL: float
     var nextTradeId = 0
     var runTrading = false
-
+    var marketOpen: DateTime
+    var marketClose: DateTime
+    var tradingTime: DateTime
+    var marketClosed = true
+    var checkHours = true
+    var doTrading = false
 
     # closure functions
 
@@ -75,6 +80,22 @@ proc main() =
         result.orderN = trackerN
         result.orderD = trackerD
         result.status = trSubmit
+
+    proc setTodaysTradingHours() {.async.} =
+        let etTime = inZone(now(), ET)
+        if etTime.weekday in [dSat, dSun]:
+            marketClosed = true
+            return
+        let details = await client.reqContractDetails(contracts[stocks[0].symbol]) # any stock will do
+        let calendar = parseLiquidHours(details[0])
+        for day in calendar:
+            if day.marketOpen.yearday == etTime.yearday:
+                marketOpen = day.marketOpen
+                marketClose = day.marketClose
+                tradingTime = marketClose - initTimeInterval(minutes = 30)
+                marketClosed = false
+                return
+        marketClosed = true
 
     proc connectIB() {.async.} =
         asyncCheck client.connect("127.0.0.1", 4002, 1) 
@@ -90,22 +111,20 @@ proc main() =
     proc sendRates(){.async.} =
         for stock,rate in rates.pairs:
             var payload = %*{"Id": "rate", "Symbol": stock, "Rebate": rate.rebate, "Interest":rate.interest}
-            for con in connections:
-                await con.send($payload)
+            
+            await ws.send($payload)
 
     proc sendPair(pair: Pair) {.async.} =
         var payload = %*{"Id": "pair", "Pair": (pair.symbolN & "." & pair.symbolD), "Exposure": pair.exposure, "Last": pair.last,
                          "Mean": pair.mean, "Std": pair.std, "Zscore": pair.zscore, "Active": $pair.active}
-        for con in connections:
-            echo $payload
-            await con.send($payload)
+        
+        await ws.send($payload)
     
     proc onTick(tick: Ticker) {.async.} =
         var payload = %*{"Id": "price", "Symbol": tick.contract.symbol, "Bid": tick.bid, "Ask": tick.ask,
          "BidSize": tick.bidSize, "AskSize": tick.askSize, "Shortable": $(tick.difficultyToShort), "ShortShares": tick.shortableShares}
         echo $payload
-        for con in connections:
-            await con.send($payload)
+        await ws.send($payload)
 
     proc subscribeRealTimeData() {.async.} =
         for stock in contracts.keys:
@@ -266,24 +285,31 @@ proc main() =
     proc run() {.async.} =
         while runTrading:
             let etTime = inZone(now(),ET)
-            if etTime.hour == 15 and etTime.minute == 30:
-                await calculateSignals()
-                await placeOrders()
-                await updateState()
-                await sleepAsync(60_000)
-  
+            if checkHours and etTime.hour == 8 and etTime.minute == 0:
+                await setTodaysTradingHours()
+                checkHours = false
+                if not(marketClosed):
+                    doTrading = true
+            if doTrading:
+                if etTime.hour == tradingTime.hour and etTime.minute == tradingTime.minute:
+                    await calculateSignals()
+                    await placeOrders()
+                    doTrading = false
+            if etTime.hour == 18 and etTime.minute == 0:
+                checkHours = true
+            await updateState()
+            await sleepAsync(59_000)
+
     proc cb(req: Request) {.async, gcsafe.} =
         if req.url.path == "/ws":
-            var ws = await newWebSocket(req)
-            connections.add ws
+            ws = await newWebSocket(req)
             echo "Connection received!"
             asyncCheck loadRates()
             asyncCheck sendRates()
             for pair in pairs:
                 asyncCheck sendPair(pair)
-            if connections.len == 1:
-                waitFor connectIB()
-                asyncCheck subscribeRealTimeData()
+            waitFor connectIB()
+            asyncCheck subscribeRealTimeData()
             waitFor calculateSignals()
             for pair in pairs:
                 asyncCheck sendPair(pair)

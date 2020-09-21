@@ -22,7 +22,7 @@ type
         ready: bool
         payload: seq[seq[string]]
     ConnectionState = enum
-        Connecting, Connected, Disconnected
+        csConnecting, csConnected, csDisconnected
     IBClient* = ref object
         logger: FileStream
         socket: AsyncSocket
@@ -299,7 +299,7 @@ proc reqAcctUpdate(self: IBClient, subscribe: bool) {.async.} =
 proc newIBClient*(): IBClient =
     new(result)
     result.socket = newAsyncSocket()
-    result.conState = Disconnected
+    result.conState = csDisconnected
     result.optionalCapabilities = ""
     result.logger = newFileStream("log.txt", fmWrite)
     result.account = newAccount()
@@ -314,7 +314,7 @@ proc startAPI(self: IBClient) {.async.} =
     asyncCheck self.sendMessage(msg)
 
 proc listen(self: IBClient): Future[void] {.async.} =
-    while true:
+    while self.conState == csConnected:
         let (messageCode, fields) = await self.readMessage()
         self.logger.writeLine($Incoming(messageCode) & $fields)
         case Incoming(messageCode) # handle non-request messages directly
@@ -369,27 +369,35 @@ proc listen(self: IBClient): Future[void] {.async.} =
             discard
             # self.requests[messageCode] = @[] #delete served requests
         
-
 proc keepAlive(self: IBClient): Future[void] {.async.} =
-    while true:
+    while self.conState == csConnected:
         await self.reqCurrentTime()
         await sleepAsync(1000)
 
 proc connect*(self: IBClient, host: string , port: int, clientID: int) {.async.} =
+    if self.conState == csConnected:
+        return
     self.clientID = clientID
     waitFor self.socket.connect(host, Port(port))
     # initial handshake
     waitFor self.socket.send(API_SIGN)
     var msg = "v" & $MIN_CLIENT_VER & ".." & $MAX_CLIENT_VER
     waitFor self.socket.send(newMessage(msg))
-    self.conState = Connecting
+    self.conState = csConnecting
     var (serverVersion, connectTime) = waitFor self.readMessage()
     self.serverVersion = serverVersion
-    self.conState = Connected
+    self.conState = csConnected
     waitFor self.startAPI()
     self.listenerTask = self.listen()
     self.keepAliveTask = self.keepAlive()
     waitFor self.reqAcctUpdate(true)
+
+proc disconnect*(self: IBClient) =
+    self.clientID = -1
+    self.socket.close()
+    self.conState = csDisconnected
+    self.serverVersion = 0
+
 
 ## requests
 
