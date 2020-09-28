@@ -1,0 +1,12 @@
+include nimIBApi/ibEnums
+include nimIBApi/ibContractTypes
+include nimIBApi/ibExecutionTypes
+include nimIBApi/ibMarketDataTypes
+include nimIBApi/ibOrderTypes
+include nimIBApi/ibTickTypes
+include nimIBApi/orderTracker
+include nimIBApi/position
+include nimIBApi/ticker
+include nimIBApi/handlers
+include nimIBApi/account
+include nimIBApi/client

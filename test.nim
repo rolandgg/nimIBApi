@@ -1,10 +1,9 @@
-import ibApi
-import asyncdispatch
+import json_serialization
 
-var client = newIBClient()
-waitFor client.connect("127.0.0.1", 4002, 1)
-echo client.account.netLiquidation #access the net liquidation value of the account
-var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
-let details = waitFor client.reqContractDetails(contract) #request contract details
-echo parseLiquidHours(details[0])
-waitFor sleepAsync(1_000)
+type
+  Foo = object
+    ask: float
+    bid: float
+
+
+echo Json.encode Foo(bid:1, ask: 1.1)
