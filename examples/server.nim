@@ -1,6 +1,7 @@
 import ws, asyncdispatch, asynchttpserver, streams, strutils, parsecsv
 import json, sugar, sequtils, tables, times, timezones, math
-import ../ibApi
+import json_serialization
+import ../src/ibApi
 
 # Statistical arbitrage pairs-trading algorithm combined with a web-server streaming data to a brower frontend.
 # To make this work you will have to supply your own lists of stocks and pairs to trade.
@@ -111,14 +112,11 @@ proc main() =
     proc sendRates(){.async.} =
         for stock,rate in rates.pairs:
             var payload = %*{"Id": "rate", "Symbol": stock, "Rebate": rate.rebate, "Interest":rate.interest}
-            
             await ws.send($payload)
 
-    proc sendPair(pair: Pair) {.async.} =
-        var payload = %*{"Id": "pair", "Pair": (pair.symbolN & "." & pair.symbolD), "Exposure": pair.exposure, "Last": pair.last,
-                         "Mean": pair.mean, "Std": pair.std, "Zscore": pair.zscore, "Active": $pair.active}
-        
-        await ws.send($payload)
+    proc sendTuple[T](data: T) {.async.} =
+        await ws.send(Json.encode data)
+
     
     proc onTick(tick: Ticker) {.async.} =
         var payload = %*{"Id": "price", "Symbol": tick.contract.symbol, "Bid": tick.bid, "Ask": tick.ask,
@@ -307,14 +305,13 @@ proc main() =
             asyncCheck loadRates()
             asyncCheck sendRates()
             for pair in pairs:
-                asyncCheck sendPair(pair)
+                asyncCheck sendTuple(pair)
             waitFor connectIB()
             asyncCheck subscribeRealTimeData()
             waitFor calculateSignals()
             for pair in pairs:
                 asyncCheck sendPair(pair)
     
-
     var server = newAsyncHttpServer()
     waitFor server.serve(Port(9001), cb)
 

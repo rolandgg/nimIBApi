@@ -1,4 +1,4 @@
-import ../ibApi
+import ../src/ibApi
 import asyncdispatch
 
 var client = newIBClient()
