@@ -1,6 +1,5 @@
 import ws, asyncdispatch, asynchttpserver, streams, strutils, parsecsv
 import json, sugar, sequtils, tables, times, timezones, math
-import json_serialization
 import ../src/ibApi
 
 # Statistical arbitrage pairs-trading algorithm combined with a web-server streaming data to a brower frontend.
@@ -99,7 +98,12 @@ proc main() =
         marketClosed = true
 
     proc connectIB() {.async.} =
-        asyncCheck client.connect("127.0.0.1", 4002, 1) 
+        if not (client.isConnected):
+            asyncCheck client.connect("127.0.0.1", 4002, 1) 
+    
+    proc disconnectIB() =
+        if client.isConnected:
+            client.disconnect()
 
     proc loadRates() {.async.} =
         var file = newFileStream("usa.txt", fmRead)
@@ -114,18 +118,18 @@ proc main() =
             var payload = %*{"Id": "rate", "Symbol": stock, "Rebate": rate.rebate, "Interest":rate.interest}
             await ws.send($payload)
 
-    proc sendTuple[T](data: T) {.async.} =
-        await ws.send(Json.encode data)
+    proc sendPair(pair: Pair) {.async.} =
+        await ws.send($(%*{"Id": "pair", "Pair": pair.symbolN & "." & pair.symbolD, "Exposure": pair.exposure,
+        "Last": pair.last, "Mean": pair.mean, "Std": pair.std, "Zscore": pair.zscore, "Active": $pair.active}))
 
-    
     proc onTick(tick: Ticker) {.async.} =
         var payload = %*{"Id": "price", "Symbol": tick.contract.symbol, "Bid": tick.bid, "Ask": tick.ask,
          "BidSize": tick.bidSize, "AskSize": tick.askSize, "Shortable": $(tick.difficultyToShort), "ShortShares": tick.shortableShares}
-        echo $payload
         await ws.send($payload)
 
     proc subscribeRealTimeData() {.async.} =
         for stock in contracts.keys:
+            echo stock
             tickers[stock] = await client.reqMktData(contracts[stock], false, false,@[GenericTickType.ShortableData], onTick)
 
     proc loadPriceData() {.async.} =
@@ -305,12 +309,24 @@ proc main() =
             asyncCheck loadRates()
             asyncCheck sendRates()
             for pair in pairs:
-                asyncCheck sendTuple(pair)
-            waitFor connectIB()
-            asyncCheck subscribeRealTimeData()
-            waitFor calculateSignals()
-            for pair in pairs:
                 asyncCheck sendPair(pair)
+            while ws.readyState == Open:
+                try:
+                    let packet = await ws.receiveStrPacket()
+                    if packet == "connect":
+                        waitFor connectIB()
+                        echo client.isConnected
+                        if client.isConnected:
+                            await ws.send($(%*{"Id": "connected"}))
+                            await subscribeRealTimeData()
+                    elif packet == "disconnect":
+                        disconnectIB()
+                        if not (client.isConnected):
+                            await ws.send($(%*{"Id": "disconnected"}))
+                    await sleepAsync(100)
+                except:
+                    echo "Connection closed"
+                    return
     
     var server = newAsyncHttpServer()
     waitFor server.serve(Port(9001), cb)

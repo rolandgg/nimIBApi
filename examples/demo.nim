@@ -14,7 +14,7 @@ order.orderType = OrderType.Market
 order.action = Action.Buy
 var orderTracker = waitFor client.placeOrder(contract, order)
 
-var ticker = waitFor client.reqMktData(contract, false, false, @[GenericTickType.ShortableData])
-waitFor sleepAsync(10_000) # wait a bit for ticks to come in
-echo ticker.bid
-echo ticker.ask # access the current bid/ask prices
+#var ticker = waitFor client.reqMktData(contract, false, false, @[GenericTickType.ShortableData])
+#waitFor sleepAsync(10_000) # wait a bit for ticks to come in
+#echo ticker.bid
+#echo ticker.ask # access the current bid/ask prices

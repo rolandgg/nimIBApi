@@ -49,6 +49,12 @@ type
         nextOrderID: OrderID
         nextTickerID: TickerID
 
+
+proc isConnected*(self: IBClient): bool =
+    if self.conState == csConnected:
+        return true
+    else:
+        return false
 ## Handlers
 
 # Handlers for messages for which no requests are exposed
@@ -397,6 +403,7 @@ proc disconnect*(self: IBClient) =
     self.socket.close()
     self.conState = csDisconnected
     self.serverVersion = 0
+    self.socket = newAsyncSocket() #existing socket cannot be reconnected
 
 
 ## requests
@@ -505,7 +512,7 @@ proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[Order
     msg &= <>(order.mifid2ExecutionTrader) & <>(order.mifid2ExecutionAlgo)
     msg &= <>(order.dontUseAutoPriceForHedge) & <>(order.isOmsContainer)
     msg &= <>(order.discretionaryUpToLimitPrice) & <>(order.usePriceMgmtAlgo)
-
+    echo msg
     self.orders[orderID] = await self.sendOrder(msg, orderID) #store orders in client
     return self.orders[orderID] # return handle to the OrderTracker
 
@@ -524,7 +531,6 @@ proc reqMktData*(self: IBClient, contract: Contract, snapshot: bool, regulatory:
     msg &= <>(contract.localSymbol) & <>(contract.tradingClass)
     msg &= <>(false) & <>(genericTicks) & <>(snapshot) & <>(regulatory)
     msg &= <>("") #options
-    echo msg
     if not(isNil(callback)):
         self.tickerUpdateHandlers[self.nextTickerID] = callback
     return await self.sendTicker(msg, self.nextTickerID, contract)
@@ -532,30 +538,17 @@ proc reqMktData*(self: IBClient, contract: Contract, snapshot: bool, regulatory:
 
 if isMainModule:
     var client = newIBClient()
-    asyncCheck client.connect("127.0.0.1", 4002, 1)
-    waitFor sleepAsync(2_000)
-    echo client.account.netLiquidation
-    echo client.account.updateTime
-    echo client.account.updated
+    waitFor client.connect("127.0.0.1", 4002, 1)
+    echo client.account.netLiquidation #access the net liquidation value of the account
     var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
-    var details = waitFor client.reqContractDetails(contract)
-    echo details[0].industry
-    echo details[0].contract.exchange
-    echo details[0].contract.conId
-    #waitFor sleepAsync(2_000)
-    #var order = initOrder()
-    #order.totalQuantity = 10
-    #order.orderType = OrderType.Market
-    #order.action = Action.Buy
-    #var orderMonitor = waitFor client.placeOrder(details[0].contract, order)
-    #var ticker = waitFor client.reqMktData(details[0].contract, false, false, @[GenericTickType.ShortableData])
-    #waitFor sleepAsync(10_000)
-    #echo ticker.bid
-    #echo ticker.ask
-    #echo orderMonitor.contract.conId
-    #echo orderMonitor.commissionReports
-    var bars = waitFor client.reqHistoricalData(contract,"20 D", "1 day", "ADJUSTED_LAST", true)
-    echo bars.data
+    let details = waitFor client.reqContractDetails(contract) #request contract details
+    echo details[0].category #returns Apple's sector classification
+
+    var order = initOrder()
+    order.totalQuantity = 10
+    order.orderType = OrderType.Market
+    order.action = Action.Buy
+    var orderTracker = waitFor client.placeOrder(contract, order)
 
 
 
