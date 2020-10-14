@@ -9,16 +9,16 @@ import ../src/ibApi
 
 type
     EnterSide = enum
-        sLong, sShort
+        sLong="Long", sShort="Short"
     Active = enum
         acNone="-", acLong="Long", acShort="Short"
     TradeStatus = enum
-        trSubmit, trActive, trClosed
+        trSubmit, trActive, trSubmitClose, trClosed
     Stock = tuple[symbol: string, exchange: string, currency: string]
-    Pair = tuple[symbolN: string, symbolD: string, exposure: float, last: float,
+    Pair = tuple[pair: string, symbolN: string, symbolD: string, exposure: float, last: float,
                  std: float, mean: float, zscore: float, active: Active]
     Rate = tuple[rebate: float, interest: float]
-    Trade = tuple[id: int, symbolN, symbolD: string, qtyN: int, qtyD: int, entryTimeN: string, entryTimeD: string, entryPriceN: float, entryPriceD: float,
+    Trade = tuple[id: int, pair: string, side: EnterSide, symbolN, symbolD: string, qtyN: int, qtyD: int, entryTimeN: string, entryTimeD: string, entryPriceN: float, entryPriceD: float,
                   exitTimeN: string, exitTimeD: string, exitPriceN: float, exitPriceD: float, pnl: float, commission: float,
                   orderN: OrderTracker, orderD: OrderTracker, status: TradeStatus]
     AccountSnapShot = tuple[tstamp: Time, openPnL: float, closedPnL: float, equity: float]
@@ -41,7 +41,7 @@ proc loadPairs(): seq[Pair] =
     p.open("pairs.csv")
     p.readHeaderRow()
     while p.readRow():
-        result.add((symbolN: p.rowEntry("Stock1"), symbolD: p.rowEntry("Stock2"),
+        result.add((pair: p.rowEntry("Stock1") & "." & p.rowEntry("Stock2"), symbolN: p.rowEntry("Stock1"), symbolD: p.rowEntry("Stock2"),
          exposure: parseFloat(p.rowEntry("Exposure")), last: 0.0, std: 0.0, mean: 0.0, zscore: 0.0, active: acNone))
 
 proc main() =
@@ -62,7 +62,7 @@ proc main() =
     var accountHistory: seq[AccountSnapShot] = @[(tstamp: now().toTime, openPnL: 0.0, closedPnL: 0.0, equity: 0.0)]
     var equity, openPnL, closedPnL: float
     var nextTradeId = 0
-    var runTrading = false
+    var runTrading = true
     var marketOpen: DateTime
     var marketClose: DateTime
     var tradingTime: DateTime
@@ -72,11 +72,13 @@ proc main() =
 
     # closure functions
 
-    proc initTrade(symbolN, symbolD: string, trackerN: OrderTracker, trackerD: OrderTracker): Trade =
+    proc initTrade(symbolN, symbolD: string, side: EnterSide, trackerN: OrderTracker, trackerD: OrderTracker): Trade =
         inc nextTradeId
         result.id = nextTradeId
         result.symbolN = symbolN
         result.symbolD = symbolD
+        result.pair = symbolN & "." & symbolD
+        result.side = side
         result.orderN = trackerN
         result.orderD = trackerD
         result.status = trSubmit
@@ -99,7 +101,7 @@ proc main() =
 
     proc connectIB() {.async.} =
         if not (client.isConnected):
-            asyncCheck client.connect("127.0.0.1", 4002, 1) 
+            await client.connect("127.0.0.1", 4002, 1) #4002
     
     proc disconnectIB() =
         if client.isConnected:
@@ -119,12 +121,12 @@ proc main() =
             await ws.send($payload)
 
     proc sendPair(pair: Pair) {.async.} =
-        await ws.send($(%*{"Id": "pair", "Pair": pair.symbolN & "." & pair.symbolD, "Exposure": pair.exposure,
-        "Last": pair.last, "Mean": pair.mean, "Std": pair.std, "Zscore": pair.zscore, "Active": $pair.active}))
+        await ws.send($(%*{"id": "pair", "pair": pair.pair, "exposure": pair.exposure,
+        "last": pair.last, "mean": pair.mean, "std": pair.std, "zscore": pair.zscore, "active": $pair.active}))
 
     proc onTick(tick: Ticker) {.async.} =
-        var payload = %*{"Id": "price", "Symbol": tick.contract.symbol, "Bid": tick.bid, "Ask": tick.ask,
-         "BidSize": tick.bidSize, "AskSize": tick.askSize, "Shortable": $(tick.difficultyToShort), "ShortShares": tick.shortableShares}
+        var payload = %*{"id": "price", "symbol": tick.contract.symbol, "bid": tick.bid, "ask": tick.ask,
+         "bidSize": tick.bidSize, "askSize": tick.askSize, "shortable": $(tick.difficultyToShort), "shortShares": tick.shortableShares}
         await ws.send($payload)
 
     proc subscribeRealTimeData() {.async.} =
@@ -166,15 +168,18 @@ proc main() =
             pair.std = sqrt(std)
             pair.zscore = sqrt((last - mean)*(last - mean) / std)
 
-    proc enter(symbolN, symbolD: string, side: EnterSide ) {.async.} =
+    proc enter(pairToTrade: string, side: EnterSide ) {.async.} =
         var exposure: float
+        var symbolN,symbolD: string
         for pair in pairs:
-            if pair.symbolN == symbolN and pair.symbolD == symbolD:
+            if pair.pair == pairToTrade:
                 exposure = pair.exposure
+                symbolN = pair.symbolN
+                symbolD = pair.symbolD
         # nominator leg
         var order = initOrder()
         order.totalQuantity = float(int(exposure / tickers[symbolN].midpoint))
-        order.orderType = OrderType.MarketOnClose
+        order.orderType = OrderType.Market
         if side == sLong:
             order.action = Action.Buy
         else:
@@ -187,25 +192,26 @@ proc main() =
         else:
             order.action = Action.Buy
         var orderTrackerD = await client.placeOrder(contracts[symbolD], order)
-        let trade = initTrade(symbolN, symbolD, orderTrackerN, orderTrackerD)
+        let trade = initTrade(symbolN, symbolD, side, orderTrackerN, orderTrackerD)
         openTrades[trade.id] = trade
 
-    proc close(trade: var Trade) {.async.} =
+    proc close(id: int) {.async.} =
         var order = initOrder()
-        order.orderType = OrderType.MarketOnClose
-        order.totalQuantity = float(abs(trade.qtyN))
-        if trade.qtyN != 0:
-            if trade.qtyN > 0:
+        order.orderType = OrderType.Market
+        order.totalQuantity = float(abs(openTrades[id].qtyN))
+        if openTrades[id].qtyN != 0:
+            if openTrades[id].qtyN > 0:
                 order.action = Action.Sell
-            elif trade.qtyN < 0:
+            elif openTrades[id].qtyN < 0:
                 order.action = Action.Buy
-            trade.orderN = await client.placeOrder(contracts[trade.symbolN],order)
-        if trade.qtyD != 0:
-            if trade.qtyD > 0:
+            openTrades[id].orderN = await client.placeOrder(contracts[openTrades[id].symbolN],order)
+        if openTrades[id].qtyD != 0:
+            if openTrades[id].qtyD > 0:
                 order.action = Action.Sell
-            elif trade.qtyD < 0:
+            elif openTrades[id].qtyD < 0:
                 order.action = Action.Buy
-            trade.orderD = await client.placeOrder(contracts[trade.symbolD],order)
+            openTrades[id].orderD = await client.placeOrder(contracts[openTrades[id].symbolD],order)
+        openTrades[id].status = trSubmitClose
     
     proc placeOrders() {.async.} =
         for pair in pairs.mitems:
@@ -213,21 +219,22 @@ proc main() =
             if pair.active == acLong and pair.last < pair.mean:
                 for id,trade in openTrades.mpairs:
                     if trade.symbolN == pair.symbolN and trade.symbolD == pair.symbolD:
-                        asyncCheck close(trade)
+                        asyncCheck close(id)
                 pair.active = acNone
             if pair.active == acShort and pair.last > pair.mean:
                 for id,trade in openTrades.mpairs:
                     if trade.symbolN == pair.symbolN and trade.symbolD == pair.symbolD:
-                        asyncCheck close(trade)
+                        asyncCheck close(id)
                 pair.active = acNone
             if pair.active == acNone and pair.zscore < -2:
-                asyncCheck enter(pair.symbolN, pair.symbolD, sLong)
+                asyncCheck enter(pair.pair, sLong)
             if pair.active == acNone and pair.zscore > 2:
-                asyncCheck enter(pair.symbolN, pair.symbolD, sShort)  
+                asyncCheck enter(pair.pair, sShort)  
 
     proc updateState() {.async.} =
         var markForDelete: seq[int] = @[]
         for id,trade in openTrades.mpairs:
+            echo trade
             case trade.status
             of trSubmit:
                 if trade.orderN != nil:
@@ -246,7 +253,7 @@ proc main() =
                         trade.orderD = nil
                 if trade.orderD == nil and trade.orderN == nil:
                     trade.status = trActive
-            of trActive:
+            of trSubmitClose:
                 if trade.orderN != nil:
                     if trade.orderN.isFilled:
                         trade.exitPriceN = trade.orderN.avgFillPrice
@@ -278,11 +285,15 @@ proc main() =
             closedPnL += trade.pnl
         equity += closedPnL
         for id, trade in openTrades.mpairs:
-            trade.pnl = float(trade.qtyD)*(tickers[trade.symbolD].lastTrade - trade.entryPriceD)
-            trade.pnl += float(trade.qtyN)*(tickers[trade.symbolN].lastTrade - trade.entryPriceN)
+            trade.pnl = float(trade.qtyD)*(tickers[trade.symbolD].midpoint - trade.entryPriceD)
+            trade.pnl += float(trade.qtyN)*(tickers[trade.symbolN].midpoint - trade.entryPriceN)
             trade.pnl -= trade.commission
             openPnL += trade.pnl
         equity += openPnL
+        await ws.send($(%*{"id": "equity", "equity": equity, "day": now().format("yyyy-MM-dd")}))
+        for id, trade in openTrades.mpairs:
+            await ws.send($(%*{"id": "openTrade", "tradeId": id, "pair": trade.pair, "side": $(trade.side),
+             "qtyN": trade.qtyN, "qtyD": trade.qtyD, "openTime": trade.entryTimeN, "pnl": trade.pnl}))
 
     proc run() {.async.} =
         while runTrading:
@@ -300,31 +311,46 @@ proc main() =
             if etTime.hour == 18 and etTime.minute == 0:
                 checkHours = true
             await updateState()
-            await sleepAsync(59_000)
+            echo "update"
+            await sleepAsync(1_000)
 
     proc cb(req: Request) {.async, gcsafe.} =
         if req.url.path == "/ws":
             ws = await newWebSocket(req)
             echo "Connection received!"
-            asyncCheck loadRates()
-            asyncCheck sendRates()
+            await loadRates()
+            await sendRates()
             for pair in pairs:
-                asyncCheck sendPair(pair)
+                echo pair
+                await sendPair(pair)
+            asyncCheck run()
             while ws.readyState == Open:
                 try:
-                    let packet = await ws.receiveStrPacket()
-                    if packet == "connect":
-                        waitFor connectIB()
-                        echo client.isConnected
+                    let packet = parseJson(await ws.receiveStrPacket())
+                    
+                    if packet["id"].getStr == "connect":
+                        await connectIB()
                         if client.isConnected:
-                            await ws.send($(%*{"Id": "connected"}))
+                            await ws.send($(%*{"id": "connected"}))
+                            await sleepAsync(100)
                             await subscribeRealTimeData()
-                    elif packet == "disconnect":
+                    elif packet["id"].getStr == "disconnect":
                         disconnectIB()
                         if not (client.isConnected):
-                            await ws.send($(%*{"Id": "disconnected"}))
+                            await ws.send($(%*{"id": "disconnected"}))
+                    elif packet["id"].getStr == "long":
+                        echo "long"
+                        if client.isConnected:
+                            await enter(packet["pair"].getStr, sLong)
+                    elif packet["id"].getStr == "short":
+                        if client.isConnected:
+                            await enter(packet["pair"].getStr, sShort)
+                    elif packet["id"].getStr == "close":
+                        if client.isConnected:
+                            await close(packet["trade"].getInt)
                     await sleepAsync(100)
                 except:
+                    echo getCurrentExceptionMsg()
                     echo "Connection closed"
                     return
     

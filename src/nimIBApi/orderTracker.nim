@@ -18,7 +18,7 @@ proc newOrderTracker*(contract: Contract, order: Order, orderState: OrderState):
     result.commissionReports = @[]
 
 proc isFilled*(order: OrderTracker): bool =
-    if order.orderStatus.status == "filled":
+    if order.orderStatus.status == "Filled":
         return true
     else:
         return false
@@ -30,10 +30,12 @@ proc avgFillPrice*(order: OrderTracker): float {.inline.} =
     return order.orderStatus.avgFillPrice
 
 proc fillTime*(order: OrderTracker): string =
-    if order.executions.len > 0:
-        return order.executions[^1].time
-    else:
-        return ""
+    if not(order.isNil):
+        if order.executions.len > 0:
+            return order.executions[^1].time
+        else:
+            return ""
+    return ""
 
 proc qtyFilled*(order: OrderTracker): float =
     return order.orderStatus.filled
