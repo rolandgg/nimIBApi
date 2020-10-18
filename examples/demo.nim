@@ -8,13 +8,13 @@ var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD",
 let details = waitFor client.reqContractDetails(contract) #request contract details
 echo details[0].category #returns Apple's sector classification
 
-var order = initOrder()
-order.totalQuantity = 10
-order.orderType = OrderType.Market
-order.action = Action.Buy
-var orderTracker = waitFor client.placeOrder(contract, order)
-
-#var ticker = waitFor client.reqMktData(contract, false, false, @[GenericTickType.ShortableData])
-#waitFor sleepAsync(10_000) # wait a bit for ticks to come in
-#echo ticker.bid
-#echo ticker.ask # access the current bid/ask prices
+# var order = initOrder()
+# order.totalQuantity = 10
+# order.orderType = OrderType.Market
+# order.action = Action.Buy
+# var orderTracker = waitFor client.placeOrder(contract, order)
+# waitFor sleepAsync(10_000)
+var ticker = waitFor client.reqMktData(contract, false, false, @[GenericTickType.ShortableData])
+waitFor sleepAsync(10_000) # wait a bit for ticks to come in
+echo ticker.bid
+echo ticker.ask # access the current bid/ask prices

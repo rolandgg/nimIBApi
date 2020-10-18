@@ -99,6 +99,13 @@ type
         OptionOpenInterest = "101"
         AuctionData = "225"
         OptionVolume = "100"
+
+    MarketDataType* {.pure.} = enum
+        RealTime = 1
+        Frozen = 2
+        Delayed = 3
+        FrozenDelayed = 4
+        
     SecType* {.pure.} = enum 
         Unset = ""
         Stock = "STK"

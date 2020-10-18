@@ -27,6 +27,7 @@ type
         logger: FileStream
         socket: AsyncSocket
         conState: ConnectionState
+        marketDataSetting: MarketDataType
         conTime: Time
         serverTime: Time
         serverVersion*: int
@@ -219,6 +220,11 @@ proc handleTickMsg(self: IBClient, payload: seq[string], id: TickerID, msgCode: 
     if self.tickerUpdateHandlers.hasKey(id):
         asyncCheck self.tickerUpdateHandlers[id](self.tickers[id])
 
+proc handleMarketDataTypeMsg(self: IBClient, payload: seq[string]) =
+    var fields = newFieldStream(payload)
+    fields.skip
+    fields.skip
+    self.marketDataSetting << fields
 
 proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
     ## adds the request both to the pending requests and pending responses tables
@@ -282,7 +288,6 @@ proc sendTicker(self: IBClient, msg: string, tickerID: TickerID, contract: Contr
     asyncCheck self.sendMessage(msg)
     result = await retrieveTicker(self,tickerID)
     
-    
 # unexposed requests
 
 proc reqCurrentTime(self: IBClient) {.async.} =
@@ -312,6 +317,7 @@ proc newIBClient*(): IBClient =
     result.nextReqID = 0
     result.nextOrderID = -1
     result.nextTickerID = 0
+    result.marketDataSetting = MarketDataType.RealTime
 
 proc startAPI(self: IBClient) {.async.} =
     var msg = <>(START_API) & <>(2) & <>(self.clientID)
@@ -370,6 +376,8 @@ proc listen(self: IBClient): Future[void] {.async.} =
                 return
             self.tickers[thisTickerID].receiving = true
             self.handleTickMsg(fields,thisTickerId,Incoming(messageCode))
+        of Incoming.MARKET_DATA_TYPE:
+            self.handleMarketDataTypeMsg(fields)
 
         else:
             discard
@@ -535,6 +543,12 @@ proc reqMktData*(self: IBClient, contract: Contract, snapshot: bool, regulatory:
         self.tickerUpdateHandlers[self.nextTickerID] = callback
     return await self.sendTicker(msg, self.nextTickerID, contract)
 
+proc reqMarketDataType*(self: IBClient, dataType: MarketDataType) {.async.} =
+    if self.marketDataSetting != dataType:
+        var msg = <>(REQ_MARKET_DATA_TYPE) & <>(1) & <>(dataType)
+        await self.sendMessage(msg)
+        while self.marketDataSetting != dataType:
+            await sleepAsync(5)
 
 if isMainModule:
     var client = newIBClient()
