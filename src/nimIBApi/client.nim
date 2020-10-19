@@ -50,6 +50,8 @@ type
         nextOrderID: OrderID
         nextTickerID: TickerID
 
+proc marketDataSetting*(self: IBClient): MarketDataType =
+    return self.marketDataSetting
 
 proc isConnected*(self: IBClient): bool =
     if self.conState == csConnected:
@@ -223,8 +225,11 @@ proc handleTickMsg(self: IBClient, payload: seq[string], id: TickerID, msgCode: 
 proc handleMarketDataTypeMsg(self: IBClient, payload: seq[string]) =
     var fields = newFieldStream(payload)
     fields.skip
-    fields.skip
+    var reqId: TickerID
+    reqID << fields
     self.marketDataSetting << fields
+    if self.tickers.hasKey(reqID):
+        self.tickers[reqId].marketDataSetting = self.marketDataSetting
 
 proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
     ## adds the request both to the pending requests and pending responses tables
@@ -272,6 +277,7 @@ proc retrieveTicker(self: IBClient, tickerId: TickerID): Future[Ticker] {.async.
     result = self.tickers[tickerId]
 
 proc sendMessage(self: IBClient, msg: string) {.async.} =
+    echo msg
     asyncCheck self.socket.send(newMessage(msg))
 
 proc sendRequestWithReqId[T](self: IBClient, msg: string, reqID: int): Future[seq[T]] {.async.} =
@@ -398,7 +404,7 @@ proc connect*(self: IBClient, host: string , port: int, clientID: int) {.async.}
     var msg = "v" & $MIN_CLIENT_VER & ".." & $MAX_CLIENT_VER
     waitFor self.socket.send(newMessage(msg))
     self.conState = csConnecting
-    var (serverVersion, connectTime) = waitFor self.readMessage()
+    var (serverVersion, _) = waitFor self.readMessage()
     self.serverVersion = serverVersion
     self.conState = csConnected
     waitFor self.startAPI()
@@ -547,8 +553,6 @@ proc reqMarketDataType*(self: IBClient, dataType: MarketDataType) {.async.} =
     if self.marketDataSetting != dataType:
         var msg = <>(REQ_MARKET_DATA_TYPE) & <>(1) & <>(dataType)
         await self.sendMessage(msg)
-        while self.marketDataSetting != dataType:
-            await sleepAsync(5)
 
 if isMainModule:
     var client = newIBClient()
@@ -558,11 +562,7 @@ if isMainModule:
     let details = waitFor client.reqContractDetails(contract) #request contract details
     echo details[0].category #returns Apple's sector classification
 
-    var order = initOrder()
-    order.totalQuantity = 10
-    order.orderType = OrderType.Market
-    order.action = Action.Buy
-    var orderTracker = waitFor client.placeOrder(contract, order)
+    waitFor client.reqMarketDataType(MarketDataType.Frozen)
 
 
 

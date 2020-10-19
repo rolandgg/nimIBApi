@@ -105,6 +105,7 @@ type
         Frozen = 2
         Delayed = 3
         FrozenDelayed = 4
+        Unset = UNSET_INT
         
     SecType* {.pure.} = enum 
         Unset = ""

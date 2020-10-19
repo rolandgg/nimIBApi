@@ -53,7 +53,8 @@ proc encode*[T](val: T): string =
           T is AuctionStrategy or
           T is UsePriceMmgtAlgo or
           T is OCAType or
-          T is TickType):
+          T is TickType or
+          T is MarketDataType):
         if ord(val) == UNSET_INT:
             return "\0"
         return $ord(val) & "\0"
@@ -89,7 +90,8 @@ proc decode*[T](field: string): T =
           T is VolatilityType or
           T is ReferencePriceType or
           T is UsePriceMmgtAlgo or
-          T is OCAType):
+          T is OCAType or
+          T is MarketDataType):
         if field == "":
             return T(UNSET_INT)
         return T(parseInt(field))
