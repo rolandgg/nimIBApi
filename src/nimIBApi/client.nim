@@ -418,7 +418,16 @@ proc disconnect*(self: IBClient) =
     self.conState = csDisconnected
     self.serverVersion = 0
     self.socket = newAsyncSocket() #existing socket cannot be reconnected
-
+    self.nextReqID = 0
+    self.nextOrderID = -1
+    self.nextTickerID = 0
+    self.marketDataSetting = MarketDataType.RealTime
+    self.requests.clear()
+    self.responses.clear()
+    self.orders.clear()
+    self.tickers.clear()
+    self.tickerUpdateHandlers.clear()
+    self.orderUpdateHandlers.clear()
 
 ## requests
 
