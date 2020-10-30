@@ -1,13 +1,14 @@
 import nimIBApi/ibEnums
 import nimIBApi/ibContractTypes, nimIBApi/position, nimIBApi/ibMarketDataTypes
 import nimIBApi/ibTickTypes, nimIBApi/ibOrderTypes, nimIBApi/ibExecutionTypes
-import nimIBApi/orderTracker, nimIBApi/ticker
+import nimIBApi/orderTracker, nimIBApi/ticker, nimIBApi/ibFundamentalDataTypes
 import nimIBApi/client
 import nimIBApi/account
 import asyncdispatch
 
 export  ibEnums,
         ibContractTypes,
+        ibFundamentalDataTypes,
         position,
         ibMarketDataTypes,
         ibTickTypes,

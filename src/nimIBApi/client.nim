@@ -6,7 +6,7 @@ import times
 import tables, sets
 
 import utils, message, ibEnums, ibContractTypes, position, ibMarketDataTypes
-import ibTickTypes, ibOrderTypes, ibExecutionTypes
+import ibTickTypes, ibOrderTypes, ibExecutionTypes, ibFundamentalDataTypes
 import orderTracker, handlers, ticker
 import account
 include apiConstants
@@ -262,6 +262,7 @@ proc retrieve[T](self: IBClient, reqId: int): Future[seq[T]] {.async.} =
     while not(self.responses[reqID].ready):
         await sleepAsync(5)
     result = @[]
+    echo "found"
     for line in self.responses[reqId].payload:
         result.add(handle[T](line))
     self.responses.del(reqId)
@@ -384,7 +385,11 @@ proc listen(self: IBClient): Future[void] {.async.} =
             self.handleTickMsg(fields,thisTickerId,Incoming(messageCode))
         of Incoming.MARKET_DATA_TYPE:
             self.handleMarketDataTypeMsg(fields)
-
+        of Incoming.FUNDAMENTAL_DATA:
+            let thisReqID = parseInt(fields[1])
+            for reqID in self.requests[messageCode]:
+                if reqID == thisReqID:
+                        self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
         else:
             discard
             # self.requests[messageCode] = @[] #delete served requests
@@ -562,6 +567,16 @@ proc reqMarketDataType*(self: IBClient, dataType: MarketDataType) {.async.} =
     if self.marketDataSetting != dataType:
         var msg = <>(REQ_MARKET_DATA_TYPE) & <>(1) & <>(dataType)
         await self.sendMessage(msg)
+
+proc reqFundamentalData*(self: IBClient, contract: Contract, kind: FundamentalDataType): Future[FundamentalReport] {.async.} =
+    inc(self.nextReqId)
+    var msg = <>(REQ_FUNDAMENTAL_DATA) & <>(2) & <>(self.nextReqId) & <>(contract.conId)
+    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.exchange) & <>(contract.primaryExchange)
+    msg &= <>(contract.currency) & <>(contract.localSymbol)
+    msg &= <>(kind)
+    msg &= <>("") #tag value list always empty
+    self.registerReq(self.nextReqId, ord(Incoming.FUNDAMENTAL_DATA))
+    result = (await sendRequestWithReqId[FundamentalReport](self, msg, self.nextReqId))[0]
 
 if isMainModule:
     var client = newIBClient()

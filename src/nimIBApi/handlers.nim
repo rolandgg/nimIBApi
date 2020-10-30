@@ -1,4 +1,4 @@
-import utils, ibContractTypes, ibOrderTypes, ibExecutionTypes, ibMarketDataTypes, ibEnums, ibTickTypes
+import utils, ibContractTypes, ibOrderTypes, ibExecutionTypes, ibMarketDataTypes, ibEnums, ibTickTypes, ibFundamentalDataTypes
 import OrderTracker
 
 import bitops
@@ -315,6 +315,13 @@ proc handle*[T](payload: seq[string]): T =
         fields.skip
         result.kind << fields
         result.value << fields
+
+    when T is FundamentalReport:
+        fields.skip
+        fields.skip
+        result.data << fields
+
+
 
 
 

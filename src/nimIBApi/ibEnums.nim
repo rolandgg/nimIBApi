@@ -106,7 +106,14 @@ type
         Delayed = 3
         FrozenDelayed = 4
         Unset = UNSET_INT
-        
+
+    FundamentalDataType* {.pure.} = enum
+        Unset = ""
+        Snapshot = "ReportSnapshot"
+        FinSummary = "ReportsFinSummary"
+        Ratios = "ReportRatios"
+        FinStatements = "ReportsFinStatements"
+
     SecType* {.pure.} = enum 
         Unset = ""
         Stock = "STK"
