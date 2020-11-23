@@ -1,14 +1,19 @@
 import ../src/ibApi
 import asyncdispatch
+import streams
+import strutils, strformat, os
 
 var client = newIBClient()
 waitFor client.connect("127.0.0.1", 4002, 1)
 echo client.account.netLiquidation #access the net liquidation value of the account
-var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
-let details = waitFor client.reqContractDetails(contract) #request contract details
-echo details[0].category #returns Apple's sector classification
-var fundamentalData = waitFor client.reqFundamentalData(contract, FundamentalDataType.FinStatements)
-echo fundamentalData.data
+
+        
+var contract = Contract(symbol:"AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
+var details = waitFor client.reqContractDetails(contract)
+var fundamentalData = waitFor client.reqFundamentalData((details[0]).contract, FundamentalDataType.FinStatements)
+echo fundamentalData.totalAssets # total Assets (latest)
+echo fundamentalData.gpm # gross profit margin (trailing twelve months)
+
 # var order = initOrder()
 # order.totalQuantity = 10
 # order.orderType = OrderType.Market

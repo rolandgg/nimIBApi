@@ -113,6 +113,7 @@ type
         FinSummary = "ReportsFinSummary"
         Ratios = "ReportRatios"
         FinStatements = "ReportsFinStatements"
+        Estimates = "RESC"
 
     SecType* {.pure.} = enum 
         Unset = ""

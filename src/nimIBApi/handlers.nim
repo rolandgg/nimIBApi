@@ -319,7 +319,7 @@ proc handle*[T](payload: seq[string]): T =
     when T is FundamentalReport:
         fields.skip
         fields.skip
-        result.data << fields
+        result = initFundamentalReport(fields.next)
 
 
 

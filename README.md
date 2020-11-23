@@ -10,6 +10,7 @@ This project is work in progress. So far, the following functionality is support
 * Basic order types (Market, Limit, Market-On-Close)
 * Subscribe to real-time data (price and shortsale data)
 * Request historical bar data
+* Request fundamental data
 
 It was only tested for trading stocks on US exchanges and against Gateway version 978, legacy API versions are not supported.
 
@@ -51,3 +52,11 @@ waitFor sleepAsync(10_000) # wait a bit for ticks to come in
 echo ticker.bid
 echo ticker.ask # access the current bid/ask prices
 ```
+
+Fundamental data can be requested as follows:
+```nim
+var fundamentalData = waitFor client.reqFundamentalData((details[0]).contract, FundamentalDataType.FinStatements)
+echo fundamentalData.totalAssets # total Assets (latest)
+echo fundamentalData.gpm # gross profit margin (trailing twelve months)
+```
+Currently, only financial statements and estimates are supported. The IB API returns xml data. The FundamentalReport type includes the raw xml for further parsing, financial reports are parsed completely by the package and a limited set of fundamentals and fundamental ratios are implemented. For the estimates file type, limited parsing is implemented, see ibFundamentalDataTypes to check what is available. 

@@ -12,6 +12,7 @@ import account
 include apiConstants
 
 type
+    APIError = object of CatchableError
     MssgCode = int
     ReqID = int
     TickerID = int
@@ -231,6 +232,26 @@ proc handleMarketDataTypeMsg(self: IBClient, payload: seq[string]) =
     if self.tickers.hasKey(reqID):
         self.tickers[reqId].marketDataSetting = self.marketDataSetting
 
+proc handleErrorMessage(self: IBClient, payload: seq[string]) =
+    var fields = newFieldStream(payload)
+    fields.skip
+    var reqId: int
+    var errorCode: int
+    var errorMsg: string
+    reqID << fields
+    errorCode << fields
+    errorMsg << fields
+    
+    if reqID > -1:
+        echo "ERROR: " & errorMsg
+        for mssgCode, reqIDs in self.requests.mpairs:
+            reqIDs.keepIf(proc (x: int): bool = x != reqID)
+        self.responses.del(reqID)
+        self.tickers.del(reqID)
+        
+        raise newException(APIError, errorMsg)
+    echo "INFO: " & errorMsg
+
 proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
     ## adds the request both to the pending requests and pending responses tables
     if not(self.requests.hasKey(mssgCode)):
@@ -257,12 +278,15 @@ proc readMessage(self: IBClient): Future[tuple[id: int, payload: seq[string]]] {
     return (id: parseInt(fields[0]), payload: fields[1..^2])
 
 proc retrieve[T](self: IBClient, reqId: int): Future[seq[T]] {.async.} =
-    while self.responses[reqID].isNil:
+    while self.responses.hasKey(reqId):
+        if not(self.responses[reqID].isNil):
+            break
         await sleepAsync(5)
+    if not(self.responses.hasKey(reqId)):
+        return @[]
     while not(self.responses[reqID].ready):
         await sleepAsync(5)
     result = @[]
-    echo "found"
     for line in self.responses[reqId].payload:
         result.add(handle[T](line))
     self.responses.del(reqId)
@@ -278,7 +302,6 @@ proc retrieveTicker(self: IBClient, tickerId: TickerID): Future[Ticker] {.async.
     result = self.tickers[tickerId]
 
 proc sendMessage(self: IBClient, msg: string) {.async.} =
-    echo msg
     asyncCheck self.socket.send(newMessage(msg))
 
 proc sendRequestWithReqId[T](self: IBClient, msg: string, reqID: int): Future[seq[T]] {.async.} =
@@ -390,6 +413,11 @@ proc listen(self: IBClient): Future[void] {.async.} =
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
                         self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
+        of Incoming.ERR_MSG:
+            try:
+                self.handleErrorMessage(fields)
+            except APIError:
+                discard
         else:
             discard
             # self.requests[messageCode] = @[] #delete served requests
@@ -540,7 +568,6 @@ proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[Order
     msg &= <>(order.mifid2ExecutionTrader) & <>(order.mifid2ExecutionAlgo)
     msg &= <>(order.dontUseAutoPriceForHedge) & <>(order.isOmsContainer)
     msg &= <>(order.discretionaryUpToLimitPrice) & <>(order.usePriceMgmtAlgo)
-    echo msg
     self.orders[orderID] = await self.sendOrder(msg, orderID) #store orders in client
     return self.orders[orderID] # return handle to the OrderTracker
 
