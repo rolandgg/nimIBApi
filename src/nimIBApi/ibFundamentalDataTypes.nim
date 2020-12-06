@@ -41,6 +41,11 @@ type
         else:
             discard
 
+proc save*(report: FundamentalReport, fileName: string) =
+    var file = newFileStream(filename, fmWrite)
+    file.write(report.xml)
+    file.close
+
 proc parseReportType(xml: string): FundamentalDataType =
     var x: XmlParser
     var f = newStringStream(xml)

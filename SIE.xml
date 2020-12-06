@@ -1,0 +1,1402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportFinancialStatements Major="1" Minor="0" Revision="1">
+<CoIDs>
+<CoID Type="RepNo">A46AC</CoID>
+<CoID Type="CompanyName">Siemens AG</CoID>
+<CoID Type="OrganizationPermID">4295869238</CoID>
+</CoIDs>
+<Issues>
+<Issue ID="1" Type="C" Desc="Common Stock" Order="1">
+<IssueID Type="Name">Ordinary Shares</IssueID>
+<IssueID Type="Ticker">SIE</IssueID>
+<IssueID Type="ISIN">DE0007236101</IssueID>
+<IssueID Type="RIC">SIEGn.DE</IssueID>
+<IssueID Type="DisplayRIC">SIEGn.DE</IssueID>
+<IssueID Type="InstrumentPI">275491</IssueID>
+<IssueID Type="QuotePI">740593</IssueID>
+<IssueID Type="InstrumentPermID">8590931190</IssueID>
+<IssueID Type="QuotePermID">55837359782</IssueID>
+<Exchange Code="ETR" Country="DEU">XETRA</Exchange>
+</Issue>
+</Issues>
+<CoGeneralInfo>
+<CoStatus Code="1">Active</CoStatus>
+<CoType Code="EQU">Equity Issue</CoType>
+<LastModified>2020-12-03</LastModified>
+<LatestAvailableAnnual>2020-09-30</LatestAvailableAnnual>
+<LatestAvailableInterim>2020-09-30</LatestAvailableInterim>
+<ReportingCurrency Code="EUR">Euro</ReportingCurrency>
+<MostRecentExchange Date="2020-12-02">0.82542</MostRecentExchange>
+</CoGeneralInfo>
+<StatementInfo>
+<COAType Code="IND">Industry</COAType>
+<BalanceSheetDisplay Code="CUR">Differentiates</BalanceSheetDisplay>
+<CashFlowMethod Code="IND">Indirect</CashFlowMethod>
+</StatementInfo>
+<Notes>
+<CFAAvailability Code="1" />
+<IAvailability Code="1" />
+<ISIAvailability Code="1" />
+<BSIAvailability Code="1" />
+<CFIAvailability Code="1" />
+</Notes>
+<FinancialStatements>
+<COAMap>
+<mapItem coaItem="SREV" statementType="INC" lineID="100" precision="1">Revenue</mapItem>
+<mapItem coaItem="SORE" statementType="INC" lineID="300" precision="1">Other Revenue, Total</mapItem>
+<mapItem coaItem="RTLR" statementType="INC" lineID="310" precision="1">Total Revenue</mapItem>
+<mapItem coaItem="SCOR" statementType="INC" lineID="360" precision="1">Cost of Revenue, Total</mapItem>
+<mapItem coaItem="SGRP" statementType="INC" lineID="370" precision="1">Gross Profit</mapItem>
+<mapItem coaItem="SSGA" statementType="INC" lineID="550" precision="1">Selling/General/Admin. Expenses, Total</mapItem>
+<mapItem coaItem="ERAD" statementType="INC" lineID="560" precision="1">Research &amp; Development</mapItem>
+<mapItem coaItem="SDPR" statementType="INC" lineID="600" precision="1">Depreciation/Amortization</mapItem>
+<mapItem coaItem="SINN" statementType="INC" lineID="671" precision="1">Interest Exp.(Inc.),Net-Operating, Total</mapItem>
+<mapItem coaItem="SUIE" statementType="INC" lineID="740" precision="1">Unusual Expense (Income)</mapItem>
+<mapItem coaItem="SOOE" statementType="INC" lineID="820" precision="1">Other Operating Expenses, Total</mapItem>
+<mapItem coaItem="ETOE" statementType="INC" lineID="830" precision="1">Total Operating Expense</mapItem>
+<mapItem coaItem="SOPI" statementType="INC" lineID="840" precision="1">Operating Income</mapItem>
+<mapItem coaItem="SNIN" statementType="INC" lineID="911" precision="1">Interest Inc.(Exp.),Net-Non-Op., Total</mapItem>
+<mapItem coaItem="NGLA" statementType="INC" lineID="920" precision="1">Gain (Loss) on Sale of Assets</mapItem>
+<mapItem coaItem="SONT" statementType="INC" lineID="1270" precision="1">Other, Net</mapItem>
+<mapItem coaItem="EIBT" statementType="INC" lineID="1280" precision="1">Net Income Before Taxes</mapItem>
+<mapItem coaItem="TTAX" statementType="INC" lineID="1290" precision="1">Provision for Income Taxes</mapItem>
+<mapItem coaItem="TIAT" statementType="INC" lineID="1300" precision="1">Net Income After Taxes</mapItem>
+<mapItem coaItem="CMIN" statementType="INC" lineID="1310" precision="1">Minority Interest</mapItem>
+<mapItem coaItem="CEIA" statementType="INC" lineID="1320" precision="1">Equity In Affiliates</mapItem>
+<mapItem coaItem="CGAP" statementType="INC" lineID="1330" precision="1">U.S. GAAP Adjustment</mapItem>
+<mapItem coaItem="NIBX" statementType="INC" lineID="1340" precision="1">Net Income Before Extra. Items</mapItem>
+<mapItem coaItem="STXI" statementType="INC" lineID="1390" precision="1">Total Extraordinary Items</mapItem>
+<mapItem coaItem="NINC" statementType="INC" lineID="1400" precision="1">Net Income</mapItem>
+<mapItem coaItem="SANI" statementType="INC" lineID="1460" precision="1">Total Adjustments to Net Income</mapItem>
+<mapItem coaItem="CIAC" statementType="INC" lineID="1470" precision="1">Income Available to Com Excl ExtraOrd</mapItem>
+<mapItem coaItem="XNIC" statementType="INC" lineID="1480" precision="1">Income Available to Com Incl ExtraOrd</mapItem>
+<mapItem coaItem="SDAJ" statementType="INC" lineID="1520" precision="1">Dilution Adjustment</mapItem>
+<mapItem coaItem="SDNI" statementType="INC" lineID="1530" precision="1">Diluted Net Income</mapItem>
+<mapItem coaItem="SDWS" statementType="INC" lineID="1540" precision="2">Diluted Weighted Average Shares</mapItem>
+<mapItem coaItem="SDBF" statementType="INC" lineID="1550" precision="3">Diluted EPS Excluding ExtraOrd Items</mapItem>
+<mapItem coaItem="DDPS1" statementType="INC" lineID="1570" precision="3">DPS - Common Stock Primary Issue</mapItem>
+<mapItem coaItem="VDES" statementType="INC" lineID="1770" precision="3">Diluted Normalized EPS</mapItem>
+<mapItem coaItem="ACSH" statementType="BAL" lineID="10" precision="1">Cash</mapItem>
+<mapItem coaItem="ACAE" statementType="BAL" lineID="20" precision="1">Cash &amp; Equivalents</mapItem>
+<mapItem coaItem="ASTI" statementType="BAL" lineID="30" precision="1">Short Term Investments</mapItem>
+<mapItem coaItem="SCSI" statementType="BAL" lineID="40" precision="1">Cash and Short Term Investments</mapItem>
+<mapItem coaItem="AACR" statementType="BAL" lineID="70" precision="1">Accounts Receivable - Trade, Net</mapItem>
+<mapItem coaItem="ATRC" statementType="BAL" lineID="100" precision="1">Total Receivables, Net</mapItem>
+<mapItem coaItem="AITL" statementType="BAL" lineID="180" precision="1">Total Inventory</mapItem>
+<mapItem coaItem="APPY" statementType="BAL" lineID="190" precision="1">Prepaid Expenses</mapItem>
+<mapItem coaItem="SOCA" statementType="BAL" lineID="260" precision="1">Other Current Assets, Total</mapItem>
+<mapItem coaItem="ATCA" statementType="BAL" lineID="270" precision="1">Total Current Assets</mapItem>
+<mapItem coaItem="APTC" statementType="BAL" lineID="520" precision="1">Property/Plant/Equipment, Total - Gross</mapItem>
+<mapItem coaItem="ADEP" statementType="BAL" lineID="530" precision="1">Accumulated Depreciation, Total</mapItem>
+<mapItem coaItem="APPN" statementType="BAL" lineID="540" precision="1">Property/Plant/Equipment, Total - Net</mapItem>
+<mapItem coaItem="AGWI" statementType="BAL" lineID="570" precision="1">Goodwill, Net</mapItem>
+<mapItem coaItem="AINT" statementType="BAL" lineID="600" precision="1">Intangibles, Net</mapItem>
+<mapItem coaItem="SINV" statementType="BAL" lineID="690" precision="1">Long Term Investments</mapItem>
+<mapItem coaItem="ALTR" statementType="BAL" lineID="710" precision="1">Note Receivable - Long Term</mapItem>
+<mapItem coaItem="SOLA" statementType="BAL" lineID="780" precision="1">Other Long Term Assets, Total</mapItem>
+<mapItem coaItem="ATOT" statementType="BAL" lineID="880" precision="1">Total Assets</mapItem>
+<mapItem coaItem="LAPB" statementType="BAL" lineID="890" precision="1">Accounts Payable</mapItem>
+<mapItem coaItem="LPBA" statementType="BAL" lineID="900" precision="1">Payable/Accrued</mapItem>
+<mapItem coaItem="LAEX" statementType="BAL" lineID="910" precision="1">Accrued Expenses</mapItem>
+<mapItem coaItem="LSTD" statementType="BAL" lineID="1120" precision="1">Notes Payable/Short Term Debt</mapItem>
+<mapItem coaItem="LCLD" statementType="BAL" lineID="1130" precision="1">Current Port. of  LT Debt/Capital Leases</mapItem>
+<mapItem coaItem="SOCL" statementType="BAL" lineID="1220" precision="1">Other Current liabilities, Total</mapItem>
+<mapItem coaItem="LTCL" statementType="BAL" lineID="1230" precision="1">Total Current Liabilities</mapItem>
+<mapItem coaItem="LLTD" statementType="BAL" lineID="1240" precision="1">Long Term Debt</mapItem>
+<mapItem coaItem="LCLO" statementType="BAL" lineID="1250" precision="1">Capital Lease Obligations</mapItem>
+<mapItem coaItem="LTTD" statementType="BAL" lineID="1260" precision="1">Total Long Term Debt</mapItem>
+<mapItem coaItem="STLD" statementType="BAL" lineID="1270" precision="1">Total Debt</mapItem>
+<mapItem coaItem="SBDT" statementType="BAL" lineID="1300" precision="1">Deferred Income Tax</mapItem>
+<mapItem coaItem="LMIN" statementType="BAL" lineID="1310" precision="1">Minority Interest</mapItem>
+<mapItem coaItem="SLTL" statementType="BAL" lineID="1370" precision="1">Other Liabilities, Total</mapItem>
+<mapItem coaItem="LTLL" statementType="BAL" lineID="1380" precision="1">Total Liabilities</mapItem>
+<mapItem coaItem="SRPR" statementType="BAL" lineID="1410" precision="1">Redeemable Preferred Stock, Total</mapItem>
+<mapItem coaItem="SPRS" statementType="BAL" lineID="1460" precision="1">Preferred Stock - Non Redeemable, Net</mapItem>
+<mapItem coaItem="SCMS" statementType="BAL" lineID="1490" precision="1">Common Stock, Total</mapItem>
+<mapItem coaItem="QPIC" statementType="BAL" lineID="1500" precision="1">Additional Paid-In Capital</mapItem>
+<mapItem coaItem="QRED" statementType="BAL" lineID="1510" precision="1">Retained Earnings (Accumulated Deficit)</mapItem>
+<mapItem coaItem="QTSC" statementType="BAL" lineID="1520" precision="1">Treasury Stock - Common</mapItem>
+<mapItem coaItem="QEDG" statementType="BAL" lineID="1530" precision="1">ESOP Debt Guarantee</mapItem>
+<mapItem coaItem="QUGL" statementType="BAL" lineID="1540" precision="1">Unrealized Gain (Loss)</mapItem>
+<mapItem coaItem="SOTE" statementType="BAL" lineID="1590" precision="1">Other Equity, Total</mapItem>
+<mapItem coaItem="QTLE" statementType="BAL" lineID="1600" precision="1">Total Equity</mapItem>
+<mapItem coaItem="QTEL" statementType="BAL" lineID="1610" precision="1">Total Liabilities &amp; Shareholders' Equity</mapItem>
+<mapItem coaItem="QTCO" statementType="BAL" lineID="1660" precision="2">Total Common Shares Outstanding</mapItem>
+<mapItem coaItem="QTPO" statementType="BAL" lineID="1770" precision="2">Total Preferred Shares Outstanding</mapItem>
+<mapItem coaItem="STBP" statementType="BAL" lineID="1980" precision="3">Tangible Book Value per Share, Common Eq</mapItem>
+<mapItem coaItem="ONET" statementType="CAS" lineID="10" precision="1">Net Income/Starting Line</mapItem>
+<mapItem coaItem="SDED" statementType="CAS" lineID="40" precision="1">Depreciation/Depletion</mapItem>
+<mapItem coaItem="SAMT" statementType="CAS" lineID="80" precision="1">Amortization</mapItem>
+<mapItem coaItem="OBDT" statementType="CAS" lineID="90" precision="1">Deferred Taxes</mapItem>
+<mapItem coaItem="SNCI" statementType="CAS" lineID="170" precision="1">Non-Cash Items</mapItem>
+<mapItem coaItem="SOCF" statementType="CAS" lineID="470" precision="1">Changes in Working Capital</mapItem>
+<mapItem coaItem="OTLO" statementType="CAS" lineID="480" precision="1">Cash from Operating Activities</mapItem>
+<mapItem coaItem="SCEX" statementType="CAS" lineID="520" precision="1">Capital Expenditures</mapItem>
+<mapItem coaItem="SICF" statementType="CAS" lineID="670" precision="1">Other Investing Cash Flow Items, Total</mapItem>
+<mapItem coaItem="ITLI" statementType="CAS" lineID="680" precision="1">Cash from Investing Activities</mapItem>
+<mapItem coaItem="SFCF" statementType="CAS" lineID="730" precision="1">Financing Cash Flow Items</mapItem>
+<mapItem coaItem="FCDP" statementType="CAS" lineID="760" precision="1">Total Cash Dividends Paid</mapItem>
+<mapItem coaItem="FPSS" statementType="CAS" lineID="880" precision="1">Issuance (Retirement) of Stock, Net</mapItem>
+<mapItem coaItem="FPRD" statementType="CAS" lineID="970" precision="1">Issuance (Retirement) of Debt, Net</mapItem>
+<mapItem coaItem="FTLF" statementType="CAS" lineID="980" precision="1">Cash from Financing Activities</mapItem>
+<mapItem coaItem="SFEE" statementType="CAS" lineID="990" precision="1">Foreign Exchange Effects</mapItem>
+<mapItem coaItem="SNCC" statementType="CAS" lineID="1000" precision="1">Net Change in Cash</mapItem>
+<mapItem coaItem="SCIP" statementType="CAS" lineID="1040" precision="1">Cash Interest Paid</mapItem>
+<mapItem coaItem="SCTP" statementType="CAS" lineID="1050" precision="1">Cash Taxes Paid</mapItem>
+</COAMap>
+<AnnualPeriods>
+<FiscalPeriod Type="Annual" EndDate="2020-09-30" FiscalYear="2020">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">57139.000000</lineItem>
+<lineItem coaCode="RTLR">57139.000000</lineItem>
+<lineItem coaCode="SCOR">36953.000000</lineItem>
+<lineItem coaCode="SGRP">20186.000000</lineItem>
+<lineItem coaCode="SSGA">10774.000000</lineItem>
+<lineItem coaCode="ERAD">4601.000000</lineItem>
+<lineItem coaCode="SUIE">-452.000000</lineItem>
+<lineItem coaCode="SOOE">256.000000</lineItem>
+<lineItem coaCode="ETOE">52132.000000</lineItem>
+<lineItem coaCode="SOPI">5007.000000</lineItem>
+<lineItem coaCode="SNIN">136.000000</lineItem>
+<lineItem coaCode="SONT">529.000000</lineItem>
+<lineItem coaCode="EIBT">5672.000000</lineItem>
+<lineItem coaCode="TTAX">1382.000000</lineItem>
+<lineItem coaCode="TIAT">4290.000000</lineItem>
+<lineItem coaCode="CMIN">-170.000000</lineItem>
+<lineItem coaCode="NIBX">4120.000000</lineItem>
+<lineItem coaCode="STXI">-90.000000</lineItem>
+<lineItem coaCode="NINC">4030.000000</lineItem>
+<lineItem coaCode="CIAC">4120.000000</lineItem>
+<lineItem coaCode="XNIC">4030.000000</lineItem>
+<lineItem coaCode="SDNI">4030.000000</lineItem>
+<lineItem coaCode="SDWS">817.364000</lineItem>
+<lineItem coaCode="SDBF">5.040590</lineItem>
+<lineItem coaCode="DDPS1">3.500000</lineItem>
+<lineItem coaCode="VDES">5.604130</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">14041.000000</lineItem>
+<lineItem coaCode="ASTI">2680.000000</lineItem>
+<lineItem coaCode="SCSI">16721.000000</lineItem>
+<lineItem coaCode="AACR">17616.000000</lineItem>
+<lineItem coaCode="ATRC">26046.000000</lineItem>
+<lineItem coaCode="AITL">7795.000000</lineItem>
+<lineItem coaCode="SOCA">2406.000000</lineItem>
+<lineItem coaCode="ATCA">52968.000000</lineItem>
+<lineItem coaCode="APTC">23443.000000</lineItem>
+<lineItem coaCode="ADEP">-13193.000000</lineItem>
+<lineItem coaCode="APPN">10250.000000</lineItem>
+<lineItem coaCode="AGWI">20449.000000</lineItem>
+<lineItem coaCode="AINT">4838.000000</lineItem>
+<lineItem coaCode="SINV">10155.000000</lineItem>
+<lineItem coaCode="ALTR">18434.000000</lineItem>
+<lineItem coaCode="SOLA">6803.000000</lineItem>
+<lineItem coaCode="ATOT">123897.000000</lineItem>
+<lineItem coaCode="LAPB">7873.000000</lineItem>
+<lineItem coaCode="LAEX">4822.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">6562.000000</lineItem>
+<lineItem coaCode="SOCL">14860.000000</lineItem>
+<lineItem coaCode="LTCL">34117.000000</lineItem>
+<lineItem coaCode="LLTD">35859.000000</lineItem>
+<lineItem coaCode="LCLO">2146.000000</lineItem>
+<lineItem coaCode="LTTD">38005.000000</lineItem>
+<lineItem coaCode="STLD">44567.000000</lineItem>
+<lineItem coaCode="SBDT">664.000000</lineItem>
+<lineItem coaCode="LMIN">3433.000000</lineItem>
+<lineItem coaCode="SLTL">11288.000000</lineItem>
+<lineItem coaCode="LTLL">87507.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6840.000000</lineItem>
+<lineItem coaCode="QRED">33078.000000</lineItem>
+<lineItem coaCode="QTSC">-4629.000000</lineItem>
+<lineItem coaCode="QUGL">-42.000000</lineItem>
+<lineItem coaCode="SOTE">-1407.000000</lineItem>
+<lineItem coaCode="QTLE">36390.000000</lineItem>
+<lineItem coaCode="QTEL">123897.000000</lineItem>
+<lineItem coaCode="QTCO">799.309710</lineItem>
+<lineItem coaCode="STBP">13.890740</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">4200.000000</lineItem>
+<lineItem coaCode="SDED">3157.000000</lineItem>
+<lineItem coaCode="SNCI">1161.000000</lineItem>
+<lineItem coaCode="SCTP">1650.000000</lineItem>
+<lineItem coaCode="SCIP">833.000000</lineItem>
+<lineItem coaCode="SOCF">-4318.000000</lineItem>
+<lineItem coaCode="OTLO">4200.000000</lineItem>
+<lineItem coaCode="SCEX">-1554.000000</lineItem>
+<lineItem coaCode="SICF">-3630.000000</lineItem>
+<lineItem coaCode="ITLI">-5184.000000</lineItem>
+<lineItem coaCode="SFCF">-2132.000000</lineItem>
+<lineItem coaCode="FCDP">-3174.000000</lineItem>
+<lineItem coaCode="FPSS">1107.000000</lineItem>
+<lineItem coaCode="FPRD">7371.000000</lineItem>
+<lineItem coaCode="FTLF">3172.000000</lineItem>
+<lineItem coaCode="SFEE">-525.000000</lineItem>
+<lineItem coaCode="SNCC">1663.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Annual" EndDate="2019-09-30" FiscalYear="2019">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="RES">Restated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">58483.000000</lineItem>
+<lineItem coaCode="RTLR">58483.000000</lineItem>
+<lineItem coaCode="SCOR">36849.000000</lineItem>
+<lineItem coaCode="SGRP">21634.000000</lineItem>
+<lineItem coaCode="SSGA">10688.000000</lineItem>
+<lineItem coaCode="ERAD">4669.000000</lineItem>
+<lineItem coaCode="SUIE">-74.000000</lineItem>
+<lineItem coaCode="SOOE">173.000000</lineItem>
+<lineItem coaCode="ETOE">52305.000000</lineItem>
+<lineItem coaCode="SOPI">6178.000000</lineItem>
+<lineItem coaCode="SNIN">681.000000</lineItem>
+<lineItem coaCode="SONT">74.000000</lineItem>
+<lineItem coaCode="EIBT">6933.000000</lineItem>
+<lineItem coaCode="TTAX">1775.000000</lineItem>
+<lineItem coaCode="TIAT">5158.000000</lineItem>
+<lineItem coaCode="CMIN">-474.000000</lineItem>
+<lineItem coaCode="NIBX">4684.000000</lineItem>
+<lineItem coaCode="STXI">490.000000</lineItem>
+<lineItem coaCode="NINC">5174.000000</lineItem>
+<lineItem coaCode="CIAC">4684.000000</lineItem>
+<lineItem coaCode="XNIC">5174.000000</lineItem>
+<lineItem coaCode="SDNI">5174.000000</lineItem>
+<lineItem coaCode="SDWS">818.309000</lineItem>
+<lineItem coaCode="SDBF">5.724000</lineItem>
+<lineItem coaCode="DDPS1">3.900000</lineItem>
+<lineItem coaCode="VDES">6.079480</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2019-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2019-12-04">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">12391.000000</lineItem>
+<lineItem coaCode="ASTI">2001.000000</lineItem>
+<lineItem coaCode="SCSI">14392.000000</lineItem>
+<lineItem coaCode="AACR">27237.000000</lineItem>
+<lineItem coaCode="ATRC">38199.000000</lineItem>
+<lineItem coaCode="AITL">14806.000000</lineItem>
+<lineItem coaCode="SOCA">2973.000000</lineItem>
+<lineItem coaCode="ATCA">70370.000000</lineItem>
+<lineItem coaCode="APTC">29947.000000</lineItem>
+<lineItem coaCode="ADEP">-17764.000000</lineItem>
+<lineItem coaCode="APPN">12183.000000</lineItem>
+<lineItem coaCode="AGWI">30160.000000</lineItem>
+<lineItem coaCode="AINT">9800.000000</lineItem>
+<lineItem coaCode="SINV">3334.000000</lineItem>
+<lineItem coaCode="ALTR">16514.000000</lineItem>
+<lineItem coaCode="SOLA">7887.000000</lineItem>
+<lineItem coaCode="ATOT">150248.000000</lineItem>
+<lineItem coaCode="LAPB">11409.000000</lineItem>
+<lineItem coaCode="LAEX">7043.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">6034.000000</lineItem>
+<lineItem coaCode="SOCL">26237.000000</lineItem>
+<lineItem coaCode="LTCL">50723.000000</lineItem>
+<lineItem coaCode="LLTD">30324.000000</lineItem>
+<lineItem coaCode="LCLO">90.000000</lineItem>
+<lineItem coaCode="LTTD">30414.000000</lineItem>
+<lineItem coaCode="STLD">36448.000000</lineItem>
+<lineItem coaCode="SBDT">1305.000000</lineItem>
+<lineItem coaCode="LMIN">2858.000000</lineItem>
+<lineItem coaCode="SLTL">16822.000000</lineItem>
+<lineItem coaCode="LTLL">102122.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6287.000000</lineItem>
+<lineItem coaCode="QRED">41818.000000</lineItem>
+<lineItem coaCode="QTSC">-3663.000000</lineItem>
+<lineItem coaCode="QUGL">-49.000000</lineItem>
+<lineItem coaCode="SOTE">1183.000000</lineItem>
+<lineItem coaCode="QTLE">48126.000000</lineItem>
+<lineItem coaCode="QTEL">150248.000000</lineItem>
+<lineItem coaCode="QTCO">812.767950</lineItem>
+<lineItem coaCode="STBP">10.047150</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2019-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2019-12-04">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">5648.000000</lineItem>
+<lineItem coaCode="SDED">3494.000000</lineItem>
+<lineItem coaCode="SNCI">1584.000000</lineItem>
+<lineItem coaCode="SCTP">2589.000000</lineItem>
+<lineItem coaCode="SCIP">1123.000000</lineItem>
+<lineItem coaCode="SOCF">-2270.000000</lineItem>
+<lineItem coaCode="OTLO">8456.000000</lineItem>
+<lineItem coaCode="SCEX">-2610.000000</lineItem>
+<lineItem coaCode="SICF">-2401.000000</lineItem>
+<lineItem coaCode="ITLI">-5011.000000</lineItem>
+<lineItem coaCode="SFCF">-1367.000000</lineItem>
+<lineItem coaCode="FCDP">-3060.000000</lineItem>
+<lineItem coaCode="FPSS">-363.000000</lineItem>
+<lineItem coaCode="FPRD">2513.000000</lineItem>
+<lineItem coaCode="FTLF">-2277.000000</lineItem>
+<lineItem coaCode="SFEE">157.000000</lineItem>
+<lineItem coaCode="SNCC">1325.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Annual" EndDate="2018-09-30" FiscalYear="2018">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2018-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2018-11-29">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">83044.000000</lineItem>
+<lineItem coaCode="RTLR">83044.000000</lineItem>
+<lineItem coaCode="SCOR">58181.000000</lineItem>
+<lineItem coaCode="SGRP">24863.000000</lineItem>
+<lineItem coaCode="SSGA">12941.000000</lineItem>
+<lineItem coaCode="ERAD">5558.000000</lineItem>
+<lineItem coaCode="SUIE">-274.000000</lineItem>
+<lineItem coaCode="SOOE">452.000000</lineItem>
+<lineItem coaCode="ETOE">76858.000000</lineItem>
+<lineItem coaCode="SOPI">6186.000000</lineItem>
+<lineItem coaCode="SNIN">391.000000</lineItem>
+<lineItem coaCode="SONT">1473.000000</lineItem>
+<lineItem coaCode="EIBT">8050.000000</lineItem>
+<lineItem coaCode="TTAX">2489.000000</lineItem>
+<lineItem coaCode="TIAT">5561.000000</lineItem>
+<lineItem coaCode="CMIN">-313.000000</lineItem>
+<lineItem coaCode="NIBX">5248.000000</lineItem>
+<lineItem coaCode="STXI">559.000000</lineItem>
+<lineItem coaCode="NINC">5807.000000</lineItem>
+<lineItem coaCode="CIAC">5248.000000</lineItem>
+<lineItem coaCode="XNIC">5807.000000</lineItem>
+<lineItem coaCode="SDNI">5807.000000</lineItem>
+<lineItem coaCode="SDWS">828.316000</lineItem>
+<lineItem coaCode="SDBF">6.335750</lineItem>
+<lineItem coaCode="DDPS1">3.800000</lineItem>
+<lineItem coaCode="VDES">6.880340</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="CLA">Reclassified Normal</UpdateType>
+<StatementDate>2018-12-31</StatementDate>
+<Source Date="2019-01-30">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">11066.000000</lineItem>
+<lineItem coaCode="ASTI">1970.000000</lineItem>
+<lineItem coaCode="SCSI">13036.000000</lineItem>
+<lineItem coaCode="AACR">25493.000000</lineItem>
+<lineItem coaCode="ATRC">35240.000000</lineItem>
+<lineItem coaCode="AITL">13885.000000</lineItem>
+<lineItem coaCode="SOCA">2395.000000</lineItem>
+<lineItem coaCode="ATCA">64556.000000</lineItem>
+<lineItem coaCode="APTC">28041.000000</lineItem>
+<lineItem coaCode="ADEP">-16659.000000</lineItem>
+<lineItem coaCode="APPN">11381.000000</lineItem>
+<lineItem coaCode="AGWI">28344.000000</lineItem>
+<lineItem coaCode="AINT">10131.000000</lineItem>
+<lineItem coaCode="SINV">3452.000000</lineItem>
+<lineItem coaCode="ALTR">15614.000000</lineItem>
+<lineItem coaCode="SOLA">5437.000000</lineItem>
+<lineItem coaCode="ATOT">138915.000000</lineItem>
+<lineItem coaCode="LAPB">10716.000000</lineItem>
+<lineItem coaCode="LAEX">7029.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">5057.000000</lineItem>
+<lineItem coaCode="SOCL">25072.000000</lineItem>
+<lineItem coaCode="LTCL">47874.000000</lineItem>
+<lineItem coaCode="LLTD">27025.000000</lineItem>
+<lineItem coaCode="LCLO">95.000000</lineItem>
+<lineItem coaCode="LTTD">27120.000000</lineItem>
+<lineItem coaCode="STLD">32177.000000</lineItem>
+<lineItem coaCode="SBDT">1092.000000</lineItem>
+<lineItem coaCode="LMIN">2573.000000</lineItem>
+<lineItem coaCode="SLTL">14783.000000</lineItem>
+<lineItem coaCode="LTLL">93442.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6184.000000</lineItem>
+<lineItem coaCode="QRED">41014.000000</lineItem>
+<lineItem coaCode="QTSC">-3922.000000</lineItem>
+<lineItem coaCode="QUGL">24.000000</lineItem>
+<lineItem coaCode="SOTE">-377.000000</lineItem>
+<lineItem coaCode="QTLE">45473.000000</lineItem>
+<lineItem coaCode="QTEL">138915.000000</lineItem>
+<lineItem coaCode="QTCO">810.048540</lineItem>
+<lineItem coaCode="STBP">8.638990</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2018-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2018-11-29">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">6120.000000</lineItem>
+<lineItem coaCode="SDED">3419.000000</lineItem>
+<lineItem coaCode="SNCI">699.000000</lineItem>
+<lineItem coaCode="SCTP">2061.000000</lineItem>
+<lineItem coaCode="SCIP">1002.000000</lineItem>
+<lineItem coaCode="SOCF">-1812.000000</lineItem>
+<lineItem coaCode="OTLO">8426.000000</lineItem>
+<lineItem coaCode="SCEX">-2602.000000</lineItem>
+<lineItem coaCode="SICF">-1172.000000</lineItem>
+<lineItem coaCode="ITLI">-3774.000000</lineItem>
+<lineItem coaCode="SFCF">-1127.000000</lineItem>
+<lineItem coaCode="FCDP">-3011.000000</lineItem>
+<lineItem coaCode="FPSS">2655.000000</lineItem>
+<lineItem coaCode="FPRD">-463.000000</lineItem>
+<lineItem coaCode="FTLF">-1946.000000</lineItem>
+<lineItem coaCode="SFEE">-29.000000</lineItem>
+<lineItem coaCode="SNCC">2677.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Annual" EndDate="2017-09-30" FiscalYear="2017">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="RES">Restated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2018-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2018-11-29">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">82863.000000</lineItem>
+<lineItem coaCode="RTLR">82863.000000</lineItem>
+<lineItem coaCode="SCOR">57820.000000</lineItem>
+<lineItem coaCode="SGRP">25043.000000</lineItem>
+<lineItem coaCode="SSGA">12360.000000</lineItem>
+<lineItem coaCode="ERAD">5164.000000</lineItem>
+<lineItem coaCode="SUIE">-348.000000</lineItem>
+<lineItem coaCode="SOOE">296.000000</lineItem>
+<lineItem coaCode="ETOE">75292.000000</lineItem>
+<lineItem coaCode="SOPI">7571.000000</lineItem>
+<lineItem coaCode="SNIN">482.000000</lineItem>
+<lineItem coaCode="SONT">136.000000</lineItem>
+<lineItem coaCode="EIBT">8189.000000</lineItem>
+<lineItem coaCode="TTAX">2148.000000</lineItem>
+<lineItem coaCode="TIAT">6041.000000</lineItem>
+<lineItem coaCode="CMIN">-133.000000</lineItem>
+<lineItem coaCode="NIBX">5908.000000</lineItem>
+<lineItem coaCode="STXI">53.000000</lineItem>
+<lineItem coaCode="NINC">5961.000000</lineItem>
+<lineItem coaCode="CIAC">5908.000000</lineItem>
+<lineItem coaCode="XNIC">5961.000000</lineItem>
+<lineItem coaCode="SDAJ">0.000000</lineItem>
+<lineItem coaCode="SDNI">5961.000000</lineItem>
+<lineItem coaCode="SDWS">829.164000</lineItem>
+<lineItem coaCode="SDBF">7.125250</lineItem>
+<lineItem coaCode="DDPS1">3.700000</lineItem>
+<lineItem coaCode="VDES">7.230230</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="RES">Restated Normal</UpdateType>
+<StatementDate>2017-12-31</StatementDate>
+<Source Date="2018-01-31">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">8375.000000</lineItem>
+<lineItem coaCode="ASTI">2391.000000</lineItem>
+<lineItem coaCode="SCSI">10766.000000</lineItem>
+<lineItem coaCode="AACR">23616.000000</lineItem>
+<lineItem coaCode="ATRC">32618.000000</lineItem>
+<lineItem coaCode="AITL">13885.000000</lineItem>
+<lineItem coaCode="SOCA">3481.000000</lineItem>
+<lineItem coaCode="ATCA">60750.000000</lineItem>
+<lineItem coaCode="APTC">27019.000000</lineItem>
+<lineItem coaCode="ADEP">-16040.000000</lineItem>
+<lineItem coaCode="APPN">10977.000000</lineItem>
+<lineItem coaCode="AGWI">27906.000000</lineItem>
+<lineItem coaCode="AINT">10926.000000</lineItem>
+<lineItem coaCode="SINV">5226.000000</lineItem>
+<lineItem coaCode="ALTR">14761.000000</lineItem>
+<lineItem coaCode="SOLA">5565.000000</lineItem>
+<lineItem coaCode="ATOT">136111.000000</lineItem>
+<lineItem coaCode="LAPB">9756.000000</lineItem>
+<lineItem coaCode="LAEX">6619.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">5447.000000</lineItem>
+<lineItem coaCode="SOCL">24255.000000</lineItem>
+<lineItem coaCode="LTCL">46077.000000</lineItem>
+<lineItem coaCode="LLTD">26689.000000</lineItem>
+<lineItem coaCode="LCLO">88.000000</lineItem>
+<lineItem coaCode="LTTD">26777.000000</lineItem>
+<lineItem coaCode="STLD">32224.000000</lineItem>
+<lineItem coaCode="SBDT">1635.000000</lineItem>
+<lineItem coaCode="LMIN">1438.000000</lineItem>
+<lineItem coaCode="SLTL">17003.000000</lineItem>
+<lineItem coaCode="LTLL">92930.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6368.000000</lineItem>
+<lineItem coaCode="QRED">35794.000000</lineItem>
+<lineItem coaCode="QTSC">-3196.000000</lineItem>
+<lineItem coaCode="QUGL">1845.000000</lineItem>
+<lineItem coaCode="SOTE">-180.000000</lineItem>
+<lineItem coaCode="QTLE">43181.000000</lineItem>
+<lineItem coaCode="QTEL">136111.000000</lineItem>
+<lineItem coaCode="QTCO">815.518880</lineItem>
+<lineItem coaCode="STBP">5.332800</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="CLA">Reclassified Normal</UpdateType>
+<StatementDate>2018-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2018-11-29">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">6094.000000</lineItem>
+<lineItem coaCode="SDED">3211.000000</lineItem>
+<lineItem coaCode="SNCI">1829.000000</lineItem>
+<lineItem coaCode="SCTP">2039.000000</lineItem>
+<lineItem coaCode="SCIP">1000.000000</lineItem>
+<lineItem coaCode="SOCF">-3958.000000</lineItem>
+<lineItem coaCode="OTLO">7176.000000</lineItem>
+<lineItem coaCode="SCEX">-2406.000000</lineItem>
+<lineItem coaCode="SICF">-5051.000000</lineItem>
+<lineItem coaCode="ITLI">-7457.000000</lineItem>
+<lineItem coaCode="SFCF">-1188.000000</lineItem>
+<lineItem coaCode="FCDP">-2914.000000</lineItem>
+<lineItem coaCode="FPSS">192.000000</lineItem>
+<lineItem coaCode="FPRD">2350.000000</lineItem>
+<lineItem coaCode="FTLF">-1560.000000</lineItem>
+<lineItem coaCode="SFEE">-387.000000</lineItem>
+<lineItem coaCode="SNCC">-2228.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Annual" EndDate="2016-09-30" FiscalYear="2016">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2016-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2016-11-30">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">79644.000000</lineItem>
+<lineItem coaCode="RTLR">79644.000000</lineItem>
+<lineItem coaCode="SCOR">55826.000000</lineItem>
+<lineItem coaCode="SGRP">23818.000000</lineItem>
+<lineItem coaCode="SSGA">11669.000000</lineItem>
+<lineItem coaCode="ERAD">4732.000000</lineItem>
+<lineItem coaCode="SUIE">-177.000000</lineItem>
+<lineItem coaCode="SOOE">275.000000</lineItem>
+<lineItem coaCode="ETOE">72325.000000</lineItem>
+<lineItem coaCode="SOPI">7319.000000</lineItem>
+<lineItem coaCode="SNIN">456.000000</lineItem>
+<lineItem coaCode="SONT">-371.000000</lineItem>
+<lineItem coaCode="EIBT">7404.000000</lineItem>
+<lineItem coaCode="TTAX">2008.000000</lineItem>
+<lineItem coaCode="TIAT">5396.000000</lineItem>
+<lineItem coaCode="CMIN">-134.000000</lineItem>
+<lineItem coaCode="NIBX">5262.000000</lineItem>
+<lineItem coaCode="STXI">188.000000</lineItem>
+<lineItem coaCode="NINC">5450.000000</lineItem>
+<lineItem coaCode="CIAC">5262.000000</lineItem>
+<lineItem coaCode="XNIC">5450.000000</lineItem>
+<lineItem coaCode="SDAJ">0.000000</lineItem>
+<lineItem coaCode="SDNI">5450.000000</lineItem>
+<lineItem coaCode="SDWS">819.914000</lineItem>
+<lineItem coaCode="SDBF">6.417750</lineItem>
+<lineItem coaCode="DDPS1">3.600000</lineItem>
+<lineItem coaCode="VDES">6.883510</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2016-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2016-11-30">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">10604.000000</lineItem>
+<lineItem coaCode="ASTI">2425.000000</lineItem>
+<lineItem coaCode="SCSI">13029.000000</lineItem>
+<lineItem coaCode="AACR">14280.000000</lineItem>
+<lineItem coaCode="ATRC">21987.000000</lineItem>
+<lineItem coaCode="AITL">18160.000000</lineItem>
+<lineItem coaCode="SOCA">2153.000000</lineItem>
+<lineItem coaCode="ATCA">55329.000000</lineItem>
+<lineItem coaCode="APTC">25717.000000</lineItem>
+<lineItem coaCode="ADEP">-15561.000000</lineItem>
+<lineItem coaCode="APPN">10157.000000</lineItem>
+<lineItem coaCode="AGWI">24159.000000</lineItem>
+<lineItem coaCode="AINT">7742.000000</lineItem>
+<lineItem coaCode="SINV">5934.000000</lineItem>
+<lineItem coaCode="ALTR">15395.000000</lineItem>
+<lineItem coaCode="SOLA">7001.000000</lineItem>
+<lineItem coaCode="ATOT">125717.000000</lineItem>
+<lineItem coaCode="LAPB">8048.000000</lineItem>
+<lineItem coaCode="LAEX">6576.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">6206.000000</lineItem>
+<lineItem coaCode="SOCL">22086.000000</lineItem>
+<lineItem coaCode="LTCL">42916.000000</lineItem>
+<lineItem coaCode="LLTD">24638.000000</lineItem>
+<lineItem coaCode="LCLO">123.000000</lineItem>
+<lineItem coaCode="LTTD">24761.000000</lineItem>
+<lineItem coaCode="STLD">30967.000000</lineItem>
+<lineItem coaCode="SBDT">829.000000</lineItem>
+<lineItem coaCode="LMIN">605.000000</lineItem>
+<lineItem coaCode="SLTL">22395.000000</lineItem>
+<lineItem coaCode="LTLL">91506.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">5890.000000</lineItem>
+<lineItem coaCode="QRED">27454.000000</lineItem>
+<lineItem coaCode="QTSC">-3605.000000</lineItem>
+<lineItem coaCode="QUGL">1160.000000</lineItem>
+<lineItem coaCode="SOTE">762.000000</lineItem>
+<lineItem coaCode="QTLE">34211.000000</lineItem>
+<lineItem coaCode="QTEL">125717.000000</lineItem>
+<lineItem coaCode="QTCO">808.278320</lineItem>
+<lineItem coaCode="STBP">2.857930</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2016-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2016-11-30">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">5584.000000</lineItem>
+<lineItem coaCode="SDED">2764.000000</lineItem>
+<lineItem coaCode="SNCI">1465.000000</lineItem>
+<lineItem coaCode="SCTP">1718.000000</lineItem>
+<lineItem coaCode="SCIP">809.000000</lineItem>
+<lineItem coaCode="SOCF">-2202.000000</lineItem>
+<lineItem coaCode="OTLO">7611.000000</lineItem>
+<lineItem coaCode="SCEX">-2135.000000</lineItem>
+<lineItem coaCode="SICF">-2009.000000</lineItem>
+<lineItem coaCode="ITLI">-4144.000000</lineItem>
+<lineItem coaCode="SFCF">-1046.000000</lineItem>
+<lineItem coaCode="FCDP">-2827.000000</lineItem>
+<lineItem coaCode="FPSS">-476.000000</lineItem>
+<lineItem coaCode="FPRD">1639.000000</lineItem>
+<lineItem coaCode="FTLF">-2710.000000</lineItem>
+<lineItem coaCode="SFEE">-98.000000</lineItem>
+<lineItem coaCode="SNCC">659.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Annual" EndDate="2015-09-30" FiscalYear="2015">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2015-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2015-12-02">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">75636.000000</lineItem>
+<lineItem coaCode="RTLR">75636.000000</lineItem>
+<lineItem coaCode="SCOR">53789.000000</lineItem>
+<lineItem coaCode="SGRP">21847.000000</lineItem>
+<lineItem coaCode="SSGA">11409.000000</lineItem>
+<lineItem coaCode="ERAD">4483.000000</lineItem>
+<lineItem coaCode="SUIE">-312.000000</lineItem>
+<lineItem coaCode="SOOE">225.000000</lineItem>
+<lineItem coaCode="ETOE">69594.000000</lineItem>
+<lineItem coaCode="SOPI">6042.000000</lineItem>
+<lineItem coaCode="SNIN">1677.000000</lineItem>
+<lineItem coaCode="SONT">-501.000000</lineItem>
+<lineItem coaCode="EIBT">7218.000000</lineItem>
+<lineItem coaCode="TTAX">1869.000000</lineItem>
+<lineItem coaCode="TIAT">5349.000000</lineItem>
+<lineItem coaCode="CMIN">-98.000000</lineItem>
+<lineItem coaCode="NIBX">5251.000000</lineItem>
+<lineItem coaCode="STXI">2031.000000</lineItem>
+<lineItem coaCode="NINC">7282.000000</lineItem>
+<lineItem coaCode="CIAC">5251.000000</lineItem>
+<lineItem coaCode="XNIC">7282.000000</lineItem>
+<lineItem coaCode="SDAJ">0.000000</lineItem>
+<lineItem coaCode="SDNI">7282.000000</lineItem>
+<lineItem coaCode="SDWS">832.832000</lineItem>
+<lineItem coaCode="SDBF">6.304990</lineItem>
+<lineItem coaCode="DDPS1">3.500000</lineItem>
+<lineItem coaCode="VDES">6.819300</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2015-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2015-12-02">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">9957.000000</lineItem>
+<lineItem coaCode="ASTI">2374.000000</lineItem>
+<lineItem coaCode="SCSI">12331.000000</lineItem>
+<lineItem coaCode="AACR">13909.000000</lineItem>
+<lineItem coaCode="ATRC">19754.000000</lineItem>
+<lineItem coaCode="AITL">17253.000000</lineItem>
+<lineItem coaCode="SOCA">2104.000000</lineItem>
+<lineItem coaCode="ATCA">51442.000000</lineItem>
+<lineItem coaCode="APTC">25233.000000</lineItem>
+<lineItem coaCode="ADEP">-15024.000000</lineItem>
+<lineItem coaCode="APPN">10210.000000</lineItem>
+<lineItem coaCode="AGWI">23166.000000</lineItem>
+<lineItem coaCode="AINT">8077.000000</lineItem>
+<lineItem coaCode="SINV">5629.000000</lineItem>
+<lineItem coaCode="ALTR">15741.000000</lineItem>
+<lineItem coaCode="SOLA">6083.000000</lineItem>
+<lineItem coaCode="ATOT">120348.000000</lineItem>
+<lineItem coaCode="LAPB">7774.000000</lineItem>
+<lineItem coaCode="LAEX">6679.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">2979.000000</lineItem>
+<lineItem coaCode="SOCL">22130.000000</lineItem>
+<lineItem coaCode="LTCL">39562.000000</lineItem>
+<lineItem coaCode="LLTD">26567.000000</lineItem>
+<lineItem coaCode="LCLO">115.000000</lineItem>
+<lineItem coaCode="LTTD">26682.000000</lineItem>
+<lineItem coaCode="STLD">29661.000000</lineItem>
+<lineItem coaCode="SBDT">609.000000</lineItem>
+<lineItem coaCode="LMIN">581.000000</lineItem>
+<lineItem coaCode="SLTL">18439.000000</lineItem>
+<lineItem coaCode="LTLL">85873.000000</lineItem>
+<lineItem coaCode="SCMS">2643.000000</lineItem>
+<lineItem coaCode="QPIC">5733.000000</lineItem>
+<lineItem coaCode="QRED">30152.000000</lineItem>
+<lineItem coaCode="QTSC">-6218.000000</lineItem>
+<lineItem coaCode="QUGL">726.000000</lineItem>
+<lineItem coaCode="SOTE">1439.000000</lineItem>
+<lineItem coaCode="QTLE">34475.000000</lineItem>
+<lineItem coaCode="QTEL">120348.000000</lineItem>
+<lineItem coaCode="QTCO">808.623240</lineItem>
+<lineItem coaCode="STBP">3.996920</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2015-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2015-12-02">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">7380.000000</lineItem>
+<lineItem coaCode="SDED">2549.000000</lineItem>
+<lineItem coaCode="SNCI">-2111.000000</lineItem>
+<lineItem coaCode="SCTP">2306.000000</lineItem>
+<lineItem coaCode="SCIP">596.000000</lineItem>
+<lineItem coaCode="SOCF">-1207.000000</lineItem>
+<lineItem coaCode="OTLO">6611.000000</lineItem>
+<lineItem coaCode="SCEX">-1897.000000</lineItem>
+<lineItem coaCode="SICF">-3930.000000</lineItem>
+<lineItem coaCode="ITLI">-5827.000000</lineItem>
+<lineItem coaCode="SFCF">-736.000000</lineItem>
+<lineItem coaCode="FCDP">-2728.000000</lineItem>
+<lineItem coaCode="FPSS">-2690.000000</lineItem>
+<lineItem coaCode="FPRD">7210.000000</lineItem>
+<lineItem coaCode="FTLF">1056.000000</lineItem>
+<lineItem coaCode="SFEE">83.000000</lineItem>
+<lineItem coaCode="SNCC">1923.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+</AnnualPeriods>
+<InterimPeriods>
+<FiscalPeriod Type="Interim" EndDate="2020-09-30" FiscalYear="2020" FiscalPeriodNumber="4">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>3</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UCA">Updated Calculated</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">15311.000000</lineItem>
+<lineItem coaCode="RTLR">15311.000000</lineItem>
+<lineItem coaCode="SCOR">10097.000000</lineItem>
+<lineItem coaCode="SGRP">5214.000000</lineItem>
+<lineItem coaCode="SSGA">2698.000000</lineItem>
+<lineItem coaCode="ERAD">1207.000000</lineItem>
+<lineItem coaCode="SOOE">-86.000000</lineItem>
+<lineItem coaCode="ETOE">13916.000000</lineItem>
+<lineItem coaCode="SOPI">1395.000000</lineItem>
+<lineItem coaCode="SNIN">-384.000000</lineItem>
+<lineItem coaCode="SONT">442.000000</lineItem>
+<lineItem coaCode="EIBT">1453.000000</lineItem>
+<lineItem coaCode="TTAX">381.000000</lineItem>
+<lineItem coaCode="TIAT">1072.000000</lineItem>
+<lineItem coaCode="CMIN">-121.000000</lineItem>
+<lineItem coaCode="NIBX">951.000000</lineItem>
+<lineItem coaCode="STXI">807.000000</lineItem>
+<lineItem coaCode="NINC">1758.000000</lineItem>
+<lineItem coaCode="CIAC">951.000000</lineItem>
+<lineItem coaCode="XNIC">1758.000000</lineItem>
+<lineItem coaCode="SDNI">1758.000000</lineItem>
+<lineItem coaCode="SDWS">843.425000</lineItem>
+<lineItem coaCode="SDBF">1.127550</lineItem>
+<lineItem coaCode="DDPS1">3.500000</lineItem>
+<lineItem coaCode="VDES">1.242140</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">14041.000000</lineItem>
+<lineItem coaCode="ASTI">8382.000000</lineItem>
+<lineItem coaCode="SCSI">22423.000000</lineItem>
+<lineItem coaCode="AACR">19619.000000</lineItem>
+<lineItem coaCode="ATRC">21142.000000</lineItem>
+<lineItem coaCode="AITL">7795.000000</lineItem>
+<lineItem coaCode="SOCA">1608.000000</lineItem>
+<lineItem coaCode="ATCA">52968.000000</lineItem>
+<lineItem coaCode="APPN">10250.000000</lineItem>
+<lineItem coaCode="AGWI">20449.000000</lineItem>
+<lineItem coaCode="AINT">4838.000000</lineItem>
+<lineItem coaCode="SINV">30633.000000</lineItem>
+<lineItem coaCode="SOLA">4759.000000</lineItem>
+<lineItem coaCode="ATOT">123897.000000</lineItem>
+<lineItem coaCode="LAPB">7873.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">6562.000000</lineItem>
+<lineItem coaCode="SOCL">19682.000000</lineItem>
+<lineItem coaCode="LTCL">34117.000000</lineItem>
+<lineItem coaCode="LLTD">38005.000000</lineItem>
+<lineItem coaCode="LTTD">38005.000000</lineItem>
+<lineItem coaCode="STLD">44567.000000</lineItem>
+<lineItem coaCode="SBDT">664.000000</lineItem>
+<lineItem coaCode="LMIN">3433.000000</lineItem>
+<lineItem coaCode="SLTL">11288.000000</lineItem>
+<lineItem coaCode="LTLL">87507.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6840.000000</lineItem>
+<lineItem coaCode="QRED">33078.000000</lineItem>
+<lineItem coaCode="QTSC">-4629.000000</lineItem>
+<lineItem coaCode="QUGL">-42.000000</lineItem>
+<lineItem coaCode="SOTE">-1407.000000</lineItem>
+<lineItem coaCode="QTLE">36390.000000</lineItem>
+<lineItem coaCode="QTEL">123897.000000</lineItem>
+<lineItem coaCode="QTCO">799.309710</lineItem>
+<lineItem coaCode="STBP">13.890740</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">4200.000000</lineItem>
+<lineItem coaCode="SDED">3157.000000</lineItem>
+<lineItem coaCode="SNCI">1161.000000</lineItem>
+<lineItem coaCode="SCTP">1650.000000</lineItem>
+<lineItem coaCode="SCIP">833.000000</lineItem>
+<lineItem coaCode="SOCF">-4318.000000</lineItem>
+<lineItem coaCode="OTLO">4200.000000</lineItem>
+<lineItem coaCode="SCEX">-1554.000000</lineItem>
+<lineItem coaCode="SICF">-3630.000000</lineItem>
+<lineItem coaCode="ITLI">-5184.000000</lineItem>
+<lineItem coaCode="SFCF">-2132.000000</lineItem>
+<lineItem coaCode="FCDP">-3174.000000</lineItem>
+<lineItem coaCode="FPSS">1107.000000</lineItem>
+<lineItem coaCode="FPRD">7371.000000</lineItem>
+<lineItem coaCode="FTLF">3172.000000</lineItem>
+<lineItem coaCode="SFEE">-525.000000</lineItem>
+<lineItem coaCode="SNCC">1663.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Interim" EndDate="2020-06-30" FiscalYear="2020" FiscalPeriodNumber="3">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>3</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2020-06-30</StatementDate>
+<Source Date="2020-08-06">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="SREV">13491.000000</lineItem>
+<lineItem coaCode="RTLR">13491.000000</lineItem>
+<lineItem coaCode="SCOR">8649.000000</lineItem>
+<lineItem coaCode="SGRP">4842.000000</lineItem>
+<lineItem coaCode="SSGA">2541.000000</lineItem>
+<lineItem coaCode="ERAD">1096.000000</lineItem>
+<lineItem coaCode="SOOE">20.000000</lineItem>
+<lineItem coaCode="ETOE">12306.000000</lineItem>
+<lineItem coaCode="SOPI">1185.000000</lineItem>
+<lineItem coaCode="SNIN">101.000000</lineItem>
+<lineItem coaCode="SONT">122.000000</lineItem>
+<lineItem coaCode="EIBT">1408.000000</lineItem>
+<lineItem coaCode="TTAX">422.000000</lineItem>
+<lineItem coaCode="TIAT">986.000000</lineItem>
+<lineItem coaCode="CMIN">3.000000</lineItem>
+<lineItem coaCode="NIBX">989.000000</lineItem>
+<lineItem coaCode="STXI">-451.000000</lineItem>
+<lineItem coaCode="NINC">538.000000</lineItem>
+<lineItem coaCode="SANI">1.000000</lineItem>
+<lineItem coaCode="CIAC">990.000000</lineItem>
+<lineItem coaCode="XNIC">539.000000</lineItem>
+<lineItem coaCode="SDNI">539.000000</lineItem>
+<lineItem coaCode="SDWS">800.059000</lineItem>
+<lineItem coaCode="SDBF">1.237410</lineItem>
+<lineItem coaCode="DDPS1">0.000000</lineItem>
+<lineItem coaCode="VDES">1.288180</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-06-30</StatementDate>
+<Source Date="2020-08-06">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">12084.000000</lineItem>
+<lineItem coaCode="ASTI">8470.000000</lineItem>
+<lineItem coaCode="SCSI">20554.000000</lineItem>
+<lineItem coaCode="AACR">19006.000000</lineItem>
+<lineItem coaCode="ATRC">20590.000000</lineItem>
+<lineItem coaCode="AITL">8691.000000</lineItem>
+<lineItem coaCode="SOCA">43453.000000</lineItem>
+<lineItem coaCode="ATCA">93288.000000</lineItem>
+<lineItem coaCode="APPN">10308.000000</lineItem>
+<lineItem coaCode="AGWI">21033.000000</lineItem>
+<lineItem coaCode="AINT">5092.000000</lineItem>
+<lineItem coaCode="SINV">22730.000000</lineItem>
+<lineItem coaCode="SOLA">4635.000000</lineItem>
+<lineItem coaCode="ATOT">157086.000000</lineItem>
+<lineItem coaCode="LAPB">6131.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">5459.000000</lineItem>
+<lineItem coaCode="SOCL">45518.000000</lineItem>
+<lineItem coaCode="LTCL">57108.000000</lineItem>
+<lineItem coaCode="LLTD">40619.000000</lineItem>
+<lineItem coaCode="LTTD">40619.000000</lineItem>
+<lineItem coaCode="STLD">46078.000000</lineItem>
+<lineItem coaCode="SBDT">688.000000</lineItem>
+<lineItem coaCode="LMIN">2511.000000</lineItem>
+<lineItem coaCode="SLTL">12317.000000</lineItem>
+<lineItem coaCode="LTLL">113243.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6906.000000</lineItem>
+<lineItem coaCode="QRED">39730.000000</lineItem>
+<lineItem coaCode="QTSC">-4618.000000</lineItem>
+<lineItem coaCode="SOTE">-725.000000</lineItem>
+<lineItem coaCode="QTLE">43843.000000</lineItem>
+<lineItem coaCode="QTEL">157086.000000</lineItem>
+<lineItem coaCode="QTCO">812.767950</lineItem>
+<lineItem coaCode="STBP">21.799580</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>9</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-06-30</StatementDate>
+<Source Date="2020-08-06">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ONET">2321.000000</lineItem>
+<lineItem coaCode="SDED">2267.000000</lineItem>
+<lineItem coaCode="SNCI">1538.000000</lineItem>
+<lineItem coaCode="SCTP">1470.000000</lineItem>
+<lineItem coaCode="SCIP">606.000000</lineItem>
+<lineItem coaCode="SOCF">-1905.000000</lineItem>
+<lineItem coaCode="OTLO">4221.000000</lineItem>
+<lineItem coaCode="SCEX">-1034.000000</lineItem>
+<lineItem coaCode="SICF">-2836.000000</lineItem>
+<lineItem coaCode="ITLI">-3870.000000</lineItem>
+<lineItem coaCode="SFCF">-1715.000000</lineItem>
+<lineItem coaCode="FCDP">-3174.000000</lineItem>
+<lineItem coaCode="FPSS">-1550.000000</lineItem>
+<lineItem coaCode="FPRD">8389.000000</lineItem>
+<lineItem coaCode="FTLF">1950.000000</lineItem>
+<lineItem coaCode="SFEE">-242.000000</lineItem>
+<lineItem coaCode="SNCC">2059.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Interim" EndDate="2020-03-31" FiscalYear="2020" FiscalPeriodNumber="2">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>3</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2020-03-31</StatementDate>
+<Source Date="2020-05-08">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="SREV">14225.000000</lineItem>
+<lineItem coaCode="RTLR">14225.000000</lineItem>
+<lineItem coaCode="SCOR">9152.000000</lineItem>
+<lineItem coaCode="SGRP">5073.000000</lineItem>
+<lineItem coaCode="SSGA">2670.000000</lineItem>
+<lineItem coaCode="ERAD">1167.000000</lineItem>
+<lineItem coaCode="SOOE">-15.000000</lineItem>
+<lineItem coaCode="ETOE">12974.000000</lineItem>
+<lineItem coaCode="SOPI">1251.000000</lineItem>
+<lineItem coaCode="SNIN">172.000000</lineItem>
+<lineItem coaCode="SONT">-107.000000</lineItem>
+<lineItem coaCode="EIBT">1316.000000</lineItem>
+<lineItem coaCode="TTAX">302.000000</lineItem>
+<lineItem coaCode="TIAT">1014.000000</lineItem>
+<lineItem coaCode="CMIN">-44.000000</lineItem>
+<lineItem coaCode="NIBX">970.000000</lineItem>
+<lineItem coaCode="STXI">-317.000000</lineItem>
+<lineItem coaCode="NINC">653.000000</lineItem>
+<lineItem coaCode="SANI">-1.000000</lineItem>
+<lineItem coaCode="CIAC">969.000000</lineItem>
+<lineItem coaCode="XNIC">652.000000</lineItem>
+<lineItem coaCode="SDNI">652.000000</lineItem>
+<lineItem coaCode="SDWS">812.612000</lineItem>
+<lineItem coaCode="SDBF">1.192450</lineItem>
+<lineItem coaCode="DDPS1">0.000000</lineItem>
+<lineItem coaCode="VDES">1.371660</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-03-31</StatementDate>
+<Source Date="2020-05-08">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">7832.000000</lineItem>
+<lineItem coaCode="ASTI">9834.000000</lineItem>
+<lineItem coaCode="SCSI">17666.000000</lineItem>
+<lineItem coaCode="AACR">19602.000000</lineItem>
+<lineItem coaCode="ATRC">21283.000000</lineItem>
+<lineItem coaCode="AITL">8475.000000</lineItem>
+<lineItem coaCode="SOCA">42972.000000</lineItem>
+<lineItem coaCode="ATCA">90396.000000</lineItem>
+<lineItem coaCode="APPN">10313.000000</lineItem>
+<lineItem coaCode="AGWI">21334.000000</lineItem>
+<lineItem coaCode="AINT">5311.000000</lineItem>
+<lineItem coaCode="SINV">22448.000000</lineItem>
+<lineItem coaCode="SOLA">4372.000000</lineItem>
+<lineItem coaCode="ATOT">154174.000000</lineItem>
+<lineItem coaCode="LAPB">6201.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">6908.000000</lineItem>
+<lineItem coaCode="SOCL">44183.000000</lineItem>
+<lineItem coaCode="LTCL">57292.000000</lineItem>
+<lineItem coaCode="LLTD">36827.000000</lineItem>
+<lineItem coaCode="LTTD">36827.000000</lineItem>
+<lineItem coaCode="STLD">43735.000000</lineItem>
+<lineItem coaCode="SBDT">879.000000</lineItem>
+<lineItem coaCode="LMIN">2587.000000</lineItem>
+<lineItem coaCode="SLTL">11962.000000</lineItem>
+<lineItem coaCode="LTLL">109547.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6834.000000</lineItem>
+<lineItem coaCode="QRED">39460.000000</lineItem>
+<lineItem coaCode="QTSC">-4261.000000</lineItem>
+<lineItem coaCode="SOTE">44.000000</lineItem>
+<lineItem coaCode="QTLE">44627.000000</lineItem>
+<lineItem coaCode="QTEL">154174.000000</lineItem>
+<lineItem coaCode="QTCO">812.767950</lineItem>
+<lineItem coaCode="STBP">22.124400</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>6</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2020-03-31</StatementDate>
+<Source Date="2020-05-08">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ONET">1786.000000</lineItem>
+<lineItem coaCode="SDED">1495.000000</lineItem>
+<lineItem coaCode="SNCI">631.000000</lineItem>
+<lineItem coaCode="SCTP">1156.000000</lineItem>
+<lineItem coaCode="SCIP">456.000000</lineItem>
+<lineItem coaCode="SOCF">-2711.000000</lineItem>
+<lineItem coaCode="OTLO">1201.000000</lineItem>
+<lineItem coaCode="SCEX">-692.000000</lineItem>
+<lineItem coaCode="SICF">-2912.000000</lineItem>
+<lineItem coaCode="ITLI">-3604.000000</lineItem>
+<lineItem coaCode="SFCF">-1549.000000</lineItem>
+<lineItem coaCode="FCDP">-3174.000000</lineItem>
+<lineItem coaCode="FPSS">-1091.000000</lineItem>
+<lineItem coaCode="FPRD">5846.000000</lineItem>
+<lineItem coaCode="FTLF">32.000000</lineItem>
+<lineItem coaCode="SFEE">-150.000000</lineItem>
+<lineItem coaCode="SNCC">-2521.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Interim" EndDate="2019-12-31" FiscalYear="2020" FiscalPeriodNumber="1">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>3</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="RCA">Restated Calculated</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2020-03-31</StatementDate>
+<Source Date="2020-05-08">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="SREV">14111.000000</lineItem>
+<lineItem coaCode="RTLR">14111.000000</lineItem>
+<lineItem coaCode="SCOR">9056.000000</lineItem>
+<lineItem coaCode="SGRP">5055.000000</lineItem>
+<lineItem coaCode="SSGA">2865.000000</lineItem>
+<lineItem coaCode="ERAD">1131.000000</lineItem>
+<lineItem coaCode="SOOE">-151.000000</lineItem>
+<lineItem coaCode="ETOE">12901.000000</lineItem>
+<lineItem coaCode="SOPI">1210.000000</lineItem>
+<lineItem coaCode="SNIN">248.000000</lineItem>
+<lineItem coaCode="SONT">37.000000</lineItem>
+<lineItem coaCode="EIBT">1495.000000</lineItem>
+<lineItem coaCode="TTAX">277.000000</lineItem>
+<lineItem coaCode="TIAT">1218.000000</lineItem>
+<lineItem coaCode="CMIN">-8.000000</lineItem>
+<lineItem coaCode="NIBX">1210.000000</lineItem>
+<lineItem coaCode="STXI">-130.000000</lineItem>
+<lineItem coaCode="NINC">1080.000000</lineItem>
+<lineItem coaCode="SANI">2.000000</lineItem>
+<lineItem coaCode="CIAC">1212.000000</lineItem>
+<lineItem coaCode="XNIC">1082.000000</lineItem>
+<lineItem coaCode="SDNI">1082.000000</lineItem>
+<lineItem coaCode="SDWS">812.799000</lineItem>
+<lineItem coaCode="SDBF">1.491140</lineItem>
+<lineItem coaCode="DDPS1">0.000000</lineItem>
+<lineItem coaCode="VDES">1.704650</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2019-12-31</StatementDate>
+<Source Date="2020-02-05">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">11350.000000</lineItem>
+<lineItem coaCode="ASTI">9949.000000</lineItem>
+<lineItem coaCode="SCSI">21299.000000</lineItem>
+<lineItem coaCode="AACR">28303.000000</lineItem>
+<lineItem coaCode="ATRC">30001.000000</lineItem>
+<lineItem coaCode="AITL">15946.000000</lineItem>
+<lineItem coaCode="SOCA">2224.000000</lineItem>
+<lineItem coaCode="ATCA">69470.000000</lineItem>
+<lineItem coaCode="APPN">14977.000000</lineItem>
+<lineItem coaCode="AGWI">30883.000000</lineItem>
+<lineItem coaCode="AINT">9939.000000</lineItem>
+<lineItem coaCode="SINV">21949.000000</lineItem>
+<lineItem coaCode="SOLA">5126.000000</lineItem>
+<lineItem coaCode="ATOT">152344.000000</lineItem>
+<lineItem coaCode="LAPB">10470.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">6751.000000</lineItem>
+<lineItem coaCode="SOCL">33022.000000</lineItem>
+<lineItem coaCode="LTCL">50243.000000</lineItem>
+<lineItem coaCode="LLTD">33329.000000</lineItem>
+<lineItem coaCode="LTTD">33329.000000</lineItem>
+<lineItem coaCode="STLD">40080.000000</lineItem>
+<lineItem coaCode="SBDT">1365.000000</lineItem>
+<lineItem coaCode="LMIN">2757.000000</lineItem>
+<lineItem coaCode="SLTL">15410.000000</lineItem>
+<lineItem coaCode="LTLL">103104.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6831.000000</lineItem>
+<lineItem coaCode="QRED">43004.000000</lineItem>
+<lineItem coaCode="QTSC">-3546.000000</lineItem>
+<lineItem coaCode="SOTE">401.000000</lineItem>
+<lineItem coaCode="QTLE">49240.000000</lineItem>
+<lineItem coaCode="QTEL">152344.000000</lineItem>
+<lineItem coaCode="QTCO">812.767950</lineItem>
+<lineItem coaCode="STBP">10.357200</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>3</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2019-12-31</StatementDate>
+<Source Date="2020-02-05">Interim Report</Source>
+</FPHeader>
+<lineItem coaCode="ONET">1089.000000</lineItem>
+<lineItem coaCode="SDED">1070.000000</lineItem>
+<lineItem coaCode="SNCI">-513.000000</lineItem>
+<lineItem coaCode="SCTP">492.000000</lineItem>
+<lineItem coaCode="SCIP">182.000000</lineItem>
+<lineItem coaCode="SOCF">-1115.000000</lineItem>
+<lineItem coaCode="OTLO">531.000000</lineItem>
+<lineItem coaCode="SCEX">-487.000000</lineItem>
+<lineItem coaCode="SICF">-1710.000000</lineItem>
+<lineItem coaCode="ITLI">-2197.000000</lineItem>
+<lineItem coaCode="SFCF">-220.000000</lineItem>
+<lineItem coaCode="FCDP">0.000000</lineItem>
+<lineItem coaCode="FPSS">-186.000000</lineItem>
+<lineItem coaCode="FPRD">1110.000000</lineItem>
+<lineItem coaCode="FTLF">704.000000</lineItem>
+<lineItem coaCode="SFEE">-79.000000</lineItem>
+<lineItem coaCode="SNCC">-1041.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+<FiscalPeriod Type="Interim" EndDate="2019-09-30" FiscalYear="2019" FiscalPeriodNumber="4">
+<Statement Type="INC">
+<FPHeader>
+<PeriodLength>3</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="RCA">Restated Calculated</UpdateType>
+<AccountingStd></AccountingStd>
+<StatementDate>2020-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2020-12-01">ARS</Source>
+</FPHeader>
+<lineItem coaCode="SREV">16375.000000</lineItem>
+<lineItem coaCode="RTLR">16375.000000</lineItem>
+<lineItem coaCode="SCOR">10201.000000</lineItem>
+<lineItem coaCode="SGRP">6174.000000</lineItem>
+<lineItem coaCode="SSGA">2843.000000</lineItem>
+<lineItem coaCode="ERAD">1284.000000</lineItem>
+<lineItem coaCode="SOOE">5.000000</lineItem>
+<lineItem coaCode="ETOE">14333.000000</lineItem>
+<lineItem coaCode="SOPI">2042.000000</lineItem>
+<lineItem coaCode="SNIN">162.000000</lineItem>
+<lineItem coaCode="SONT">-81.000000</lineItem>
+<lineItem coaCode="EIBT">2123.000000</lineItem>
+<lineItem coaCode="TTAX">748.000000</lineItem>
+<lineItem coaCode="TIAT">1375.000000</lineItem>
+<lineItem coaCode="CMIN">-150.000000</lineItem>
+<lineItem coaCode="NIBX">1225.000000</lineItem>
+<lineItem coaCode="STXI">94.000000</lineItem>
+<lineItem coaCode="NINC">1319.000000</lineItem>
+<lineItem coaCode="CIAC">1225.000000</lineItem>
+<lineItem coaCode="XNIC">1319.000000</lineItem>
+<lineItem coaCode="SDNI">1319.000000</lineItem>
+<lineItem coaCode="SDWS">855.458000</lineItem>
+<lineItem coaCode="SDBF">1.431980</lineItem>
+<lineItem coaCode="DDPS1">3.900000</lineItem>
+<lineItem coaCode="VDES">1.490280</lineItem>
+</Statement>
+<Statement Type="BAL">
+<FPHeader>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2019-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2019-12-04">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ACAE">12391.000000</lineItem>
+<lineItem coaCode="ASTI">10669.000000</lineItem>
+<lineItem coaCode="SCSI">23060.000000</lineItem>
+<lineItem coaCode="AACR">29203.000000</lineItem>
+<lineItem coaCode="ATRC">30306.000000</lineItem>
+<lineItem coaCode="AITL">14806.000000</lineItem>
+<lineItem coaCode="SOCA">2198.000000</lineItem>
+<lineItem coaCode="ATCA">70370.000000</lineItem>
+<lineItem coaCode="APPN">12183.000000</lineItem>
+<lineItem coaCode="AGWI">30160.000000</lineItem>
+<lineItem coaCode="AINT">9800.000000</lineItem>
+<lineItem coaCode="SINV">22087.000000</lineItem>
+<lineItem coaCode="SOLA">5648.000000</lineItem>
+<lineItem coaCode="ATOT">150248.000000</lineItem>
+<lineItem coaCode="LAPB">11409.000000</lineItem>
+<lineItem coaCode="LSTD">0.000000</lineItem>
+<lineItem coaCode="LCLD">6034.000000</lineItem>
+<lineItem coaCode="SOCL">33280.000000</lineItem>
+<lineItem coaCode="LTCL">50723.000000</lineItem>
+<lineItem coaCode="LLTD">30324.000000</lineItem>
+<lineItem coaCode="LCLO">90.000000</lineItem>
+<lineItem coaCode="LTTD">30414.000000</lineItem>
+<lineItem coaCode="STLD">36448.000000</lineItem>
+<lineItem coaCode="SBDT">1305.000000</lineItem>
+<lineItem coaCode="LMIN">2858.000000</lineItem>
+<lineItem coaCode="SLTL">16822.000000</lineItem>
+<lineItem coaCode="LTLL">102122.000000</lineItem>
+<lineItem coaCode="SCMS">2550.000000</lineItem>
+<lineItem coaCode="QPIC">6287.000000</lineItem>
+<lineItem coaCode="QRED">41818.000000</lineItem>
+<lineItem coaCode="QTSC">-3663.000000</lineItem>
+<lineItem coaCode="QUGL">-49.000000</lineItem>
+<lineItem coaCode="SOTE">1183.000000</lineItem>
+<lineItem coaCode="QTLE">48126.000000</lineItem>
+<lineItem coaCode="QTEL">150248.000000</lineItem>
+<lineItem coaCode="QTCO">812.767950</lineItem>
+<lineItem coaCode="STBP">10.047150</lineItem>
+</Statement>
+<Statement Type="CAS">
+<FPHeader>
+<PeriodLength>12</PeriodLength>
+<periodType Code="M">Months</periodType>
+<UpdateType Code="UPD">Updated Normal</UpdateType>
+<StatementDate>2019-09-30</StatementDate>
+<AuditorName Code="EYGH">Ernst &amp; Young GmbH</AuditorName>
+<AuditorOpinion Code="UNQ">Unqualified</AuditorOpinion>
+<Source Date="2019-12-04">ARS</Source>
+</FPHeader>
+<lineItem coaCode="ONET">5648.000000</lineItem>
+<lineItem coaCode="SDED">3494.000000</lineItem>
+<lineItem coaCode="SNCI">1584.000000</lineItem>
+<lineItem coaCode="SCTP">2589.000000</lineItem>
+<lineItem coaCode="SCIP">1123.000000</lineItem>
+<lineItem coaCode="SOCF">-2270.000000</lineItem>
+<lineItem coaCode="OTLO">8456.000000</lineItem>
+<lineItem coaCode="SCEX">-2610.000000</lineItem>
+<lineItem coaCode="SICF">-2401.000000</lineItem>
+<lineItem coaCode="ITLI">-5011.000000</lineItem>
+<lineItem coaCode="SFCF">-1367.000000</lineItem>
+<lineItem coaCode="FCDP">-3060.000000</lineItem>
+<lineItem coaCode="FPSS">-363.000000</lineItem>
+<lineItem coaCode="FPRD">2513.000000</lineItem>
+<lineItem coaCode="FTLF">-2277.000000</lineItem>
+<lineItem coaCode="SFEE">157.000000</lineItem>
+<lineItem coaCode="SNCC">1325.000000</lineItem>
+</Statement>
+</FiscalPeriod>
+</InterimPeriods>
+</FinancialStatements>
+</ReportFinancialStatements>

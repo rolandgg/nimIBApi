@@ -321,6 +321,30 @@ proc handle*[T](payload: seq[string]): T =
         fields.skip
         result = initFundamentalReport(fields.next)
 
+    when T is ContractDescriptionList:
+        fields.skip #reqId
+        var nContractDescriptions: int
+        nContractDescriptions << fields
+        if nContractDescriptions == 0:
+            return
+        result = newSeq[ContractDescription](nContractDescriptions)
+        
+        for i in 0..nContractDescriptions - 1:
+            var contract: Contract
+            contract.conId << fields
+            contract.symbol << fields
+            contract.secType << fields
+            contract.primaryExchange << fields
+            contract.currency << fields
+            var nDerivativeSecTypes: int
+            nDerivativeSecTypes << fields
+            if nDerivativeSecTypes > 0:
+                var derivativeSecTypesList = newSeq[string](nDerivativeSecTypes)
+                for j in 0..nDerivativeSecTypes - 1:
+                    derivativeSecTypesList[j] << fields
+                result[i] = ContractDescription(contract: contract, derivativeSecTypesList: derivativeSecTypesList)
+            else:
+                 result[i] = ContractDescription(contract: contract, derivativeSecTypesList: @[])
 
 
 

@@ -59,6 +59,24 @@ proc isConnected*(self: IBClient): bool =
         return true
     else:
         return false
+
+proc disconnect*(self: IBClient) =
+    self.clientID = -1
+    self.conState = csDisconnected
+    self.socket.close()
+    self.serverVersion = 0
+    self.socket = newAsyncSocket() #existing socket cannot be reconnected
+    self.nextReqID = 0
+    self.nextOrderID = -1
+    self.nextTickerID = 0
+    self.marketDataSetting = MarketDataType.RealTime
+    self.requests.clear()
+    self.responses.clear()
+    self.orders.clear()
+    self.tickers.clear()
+    self.tickerUpdateHandlers.clear()
+    self.orderUpdateHandlers.clear()
+
 ## Handlers
 
 # Handlers for messages for which no requests are exposed
@@ -232,7 +250,7 @@ proc handleMarketDataTypeMsg(self: IBClient, payload: seq[string]) =
     if self.tickers.hasKey(reqID):
         self.tickers[reqId].marketDataSetting = self.marketDataSetting
 
-proc handleErrorMessage(self: IBClient, payload: seq[string]) =
+proc handleErrorMessage(self: IBClient, payload: seq[string]) {.raises: [APIError, ValueError, Exception].} =
     var fields = newFieldStream(payload)
     fields.skip
     var reqId: int
@@ -243,13 +261,17 @@ proc handleErrorMessage(self: IBClient, payload: seq[string]) =
     errorMsg << fields
     
     if reqID > -1:
-        echo "ERROR: " & errorMsg
+        
         for mssgCode, reqIDs in self.requests.mpairs:
             reqIDs.keepIf(proc (x: int): bool = x != reqID)
-        self.responses.del(reqID)
-        self.tickers.del(reqID)
+        if self.responses.hasKey(reqID):
+            self.responses.del(reqID)
+        if not(errorCode == 10167) and self.tickers.hasKey((reqID)):
+            self.tickers.del(reqID)
         
-        raise newException(APIError, errorMsg)
+        if not(errorCode == 10167):
+            self.disconnect()
+            raise newException(APIError, errorMsg)
     echo "INFO: " & errorMsg
 
 proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
@@ -357,7 +379,12 @@ proc startAPI(self: IBClient) {.async.} =
 
 proc listen(self: IBClient): Future[void] {.async.} =
     while self.conState == csConnected:
-        let (messageCode, fields) = await self.readMessage()
+        var messageCode: int
+        var fields: seq[string]
+        try:
+            (messageCode, fields) = await self.readMessage()
+        except OSError:
+            return
         self.logger.writeLine($Incoming(messageCode) & $fields)
         case Incoming(messageCode) # handle non-request messages directly
         of Incoming.MANAGED_ACCTS:
@@ -412,12 +439,14 @@ proc listen(self: IBClient): Future[void] {.async.} =
             let thisReqID = parseInt(fields[1])
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
-                        self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
+                    self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
+        of Incoming.SYMBOL_SAMPLES:
+            let thisReqID = parseInt(fields[0])
+            for reqID in self.requests[messageCode]:
+                if reqID == thisReqID:
+                    self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
         of Incoming.ERR_MSG:
-            try:
-                self.handleErrorMessage(fields)
-            except APIError:
-                discard
+            self.handleErrorMessage(fields)
         else:
             discard
             # self.requests[messageCode] = @[] #delete served requests
@@ -441,26 +470,9 @@ proc connect*(self: IBClient, host: string , port: int, clientID: int) {.async.}
     self.serverVersion = serverVersion
     self.conState = csConnected
     waitFor self.startAPI()
-    self.listenerTask = self.listen()
-    self.keepAliveTask = self.keepAlive()
+    asyncCheck self.listen()
+    asyncCheck self.keepAlive()
     waitFor self.reqAcctUpdate(true)
-
-proc disconnect*(self: IBClient) =
-    self.clientID = -1
-    self.socket.close()
-    self.conState = csDisconnected
-    self.serverVersion = 0
-    self.socket = newAsyncSocket() #existing socket cannot be reconnected
-    self.nextReqID = 0
-    self.nextOrderID = -1
-    self.nextTickerID = 0
-    self.marketDataSetting = MarketDataType.RealTime
-    self.requests.clear()
-    self.responses.clear()
-    self.orders.clear()
-    self.tickers.clear()
-    self.tickerUpdateHandlers.clear()
-    self.orderUpdateHandlers.clear()
 
 ## requests
 
@@ -604,6 +616,12 @@ proc reqFundamentalData*(self: IBClient, contract: Contract, kind: FundamentalDa
     msg &= <>("") #tag value list always empty
     self.registerReq(self.nextReqId, ord(Incoming.FUNDAMENTAL_DATA))
     result = (await sendRequestWithReqId[FundamentalReport](self, msg, self.nextReqId))[0]
+
+proc reqMatchingSymbol*(self: IBClient, pattern: string): Future[ContractDescriptionList] {.async.} =
+    inc(self.nextReqId)
+    var msg = <>(REQ_MATCHING_SYMBOLS) & <>(self.nextReqId) & <>(pattern)
+    self.registerReq(self.nextReqId, ord(Incoming.SYMBOL_SAMPLES))
+    result = (await sendRequestWithReqId[ContractDescriptionList](self, msg, self.nextReqId))[0]
 
 if isMainModule:
     var client = newIBClient()

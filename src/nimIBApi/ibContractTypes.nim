@@ -67,7 +67,11 @@ type
         maturity*: string
         issueDate*, nextOptionDate*, nextOptionType*, notes*: string
 
+    ContractDescription* = object
+        contract*: Contract
+        derivativeSecTypesList*: seq[string]
 
+    ContractDescriptionList* = seq[ContractDescription]
 
 proc parseLiquidHours*(contract: ContractDetails): seq[tuple[marketOpen: Datetime, marketClose: Datetime]] =
     var tz: Timezone
