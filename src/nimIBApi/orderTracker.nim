@@ -1,9 +1,11 @@
+import options
 import ibOrderTypes, ibContractTypes, ibExecutionTypes
 
 type
     OrderTracker* = ref object
         contract*: Contract
         order*: Order
+        error*: Option[tuple[code: int, msg: string]]
         orderState*: OrderState
         orderStatus*: OrderStatus
         executions*: seq[Execution]

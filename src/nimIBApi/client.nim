@@ -3,7 +3,7 @@ import net
 import os
 import streams, strutils, sequtils
 import times
-import tables, sets
+import tables, sets, options
 
 import utils, message, ibEnums, ibContractTypes, position, ibMarketDataTypes
 import ibTickTypes, ibOrderTypes, ibExecutionTypes, ibFundamentalDataTypes
@@ -12,16 +12,20 @@ import account
 include apiConstants
 
 type
-    APIError = object of CatchableError
+    IBErrorMsg = tuple[code: int, msg: string]
+    IBError = object of CatchableError
     MssgCode = int
     ReqID = int
     TickerID = int
     Portfolio = Table[int, Position]
-    Response = ref object
+    Response = object
         reqID: ReqID
         mssgCode: MssgCode
         ready: bool
         payload: seq[seq[string]]
+    Result[T] = object
+        value: T
+        error: Option[IBErrorMsg]
     ConnectionState = enum
         csConnecting, csConnected, csDisconnected
     IBClient* = ref object
@@ -40,7 +44,7 @@ type
         listenerTask: Future[void]
         keepAliveTask: Future[void]
         requests: Table[MssgCode, seq[int]]
-        responses: Table[int, Response]
+        responses: Table[int, Option[Result[Response]]]
         orders: Table[OrderID, OrderTracker]
         tickers: Table[TickerID, Ticker]
         tickerUpdateHandlers: Table[TickerID, proc(ticker: Ticker) {.async.} ]
@@ -51,8 +55,24 @@ type
         nextOrderID: OrderID
         nextTickerID: TickerID
 
+proc wrapResult[T](value: T): Result[T] =
+    result.value = value
+    result.error = none(IBErrorMsg)
+
+proc wrapError[T](error: IBErrorMsg): Result[T] =
+    result.error = some(error)
+
+proc hasError[T](x: Result[T]): bool =
+    x.error.isSome
+
+proc expect[T](x: Result[T]): T =
+    if x.hasError:
+        raise newException(IBError, x.error.get().msg)
+    else:
+        return x.value
+
 proc marketDataSetting*(self: IBClient): MarketDataType =
-    return self.marketDataSetting
+    self.marketDataSetting
 
 proc isConnected*(self: IBClient): bool =
     if self.conState == csConnected:
@@ -250,7 +270,7 @@ proc handleMarketDataTypeMsg(self: IBClient, payload: seq[string]) =
     if self.tickers.hasKey(reqID):
         self.tickers[reqId].marketDataSetting = self.marketDataSetting
 
-proc handleErrorMessage(self: IBClient, payload: seq[string]) {.raises: [APIError, ValueError, Exception].} =
+proc handleErrorMessage(self: IBClient, payload: seq[string]) {.raises: [IBError, ValueError, Exception].} =
     var fields = newFieldStream(payload)
     fields.skip
     var reqId: int
@@ -261,17 +281,17 @@ proc handleErrorMessage(self: IBClient, payload: seq[string]) {.raises: [APIErro
     errorMsg << fields
     
     if reqID > -1:
-        
         for mssgCode, reqIDs in self.requests.mpairs:
             reqIDs.keepIf(proc (x: int): bool = x != reqID)
         if self.responses.hasKey(reqID):
-            self.responses.del(reqID)
-        if not(errorCode == 10167) and self.tickers.hasKey((reqID)):
-            self.tickers.del(reqID)
-        
-        if not(errorCode == 10167):
-            self.disconnect()
-            raise newException(APIError, errorMsg)
+            self.responses[reqID] = some(wrapError[Response]((code: errorCode, msg: errorMsg)))
+            self.responses[reqID].get().value.ready = true
+        if self.tickers.hasKey((reqID)):
+            self.tickers[reqId].error = some((code: errorCode, msg: errorMsg))
+            self.tickers[reqId].receiving = true
+        if self.orders.hasKey((reqID)):
+            self.orders[reqId].error = some((code: errorCode, msg: errorMsg))
+
     echo "INFO: " & errorMsg
 
 proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
@@ -279,7 +299,7 @@ proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
     if not(self.requests.hasKey(mssgCode)):
         self.requests[mssgCode] = @[]
     self.requests[mssgCode].add(reqID)
-    self.responses[reqID] = nil
+    self.responses[reqID] = none(Result[Response])
 
 proc readMessage(self: IBClient): Future[tuple[id: int, payload: seq[string]]] {.async.} =
 
@@ -299,18 +319,37 @@ proc readMessage(self: IBClient): Future[tuple[id: int, payload: seq[string]]] {
     let fields = buf.split("\0")
     return (id: parseInt(fields[0]), payload: fields[1..^2])
 
-proc retrieve[T](self: IBClient, reqId: int): Future[seq[T]] {.async.} =
+proc retrieveMulti[T](self: IBClient, reqId: int): Future[Result[seq[T]]] {.async.} =
     while self.responses.hasKey(reqId):
-        if not(self.responses[reqID].isNil):
+        if self.responses[reqID].isSome:
             break
         await sleepAsync(5)
     if not(self.responses.hasKey(reqId)):
-        return @[]
-    while not(self.responses[reqID].ready):
+        return wrapError[seq[T]]((code: -1, msg: "No data returned"))
+    while not(self.responses[reqID].get().value.ready):
         await sleepAsync(5)
-    result = @[]
-    for line in self.responses[reqId].payload:
-        result.add(handle[T](line))
+    let resp = self.responses[reqID].get()
+    if resp.hasError:
+        result = wrapError[seq[T]]((code: resp.error.get().code, msg: resp.error.get().msg))
+    else:
+        var res: seq[T] = @[]
+        for line in self.responses[reqId].get().value.payload:
+            res.add(handle[T](line))
+        result = wrapResult(res)
+    self.responses.del(reqId)
+    
+proc retrieve[T](self: IBClient, reqId: int): Future[Result[T]] {.async.} =
+    while self.responses.hasKey(reqId):
+        if self.responses[reqID].isSome:
+            break
+        await sleepAsync(5)
+    if not(self.responses.hasKey(reqId)):
+        return wrapError[T]((code: -1, msg: "No data returned"))
+    let resp = self.responses[reqID].get()
+    if resp.hasError:
+        result = wrapError[T]((code: resp.error.get().code, msg: resp.error.get().msg))
+    else:
+        result = wrapResult(handle[T](resp.value.payload[0]))
     self.responses.del(reqId)
 
 proc retrieveOrder(self: IBClient, orderId: int): Future[OrderTracker] {.async.} =
@@ -326,9 +365,17 @@ proc retrieveTicker(self: IBClient, tickerId: TickerID): Future[Ticker] {.async.
 proc sendMessage(self: IBClient, msg: string) {.async.} =
     asyncCheck self.socket.send(newMessage(msg))
 
-proc sendRequestWithReqId[T](self: IBClient, msg: string, reqID: int): Future[seq[T]] {.async.} =
+proc sendRequestWithReqIdMulti[T](self: IBClient, msg: string): Future[Result[seq[T]]] {.async.} =
     asyncCheck self.sendMessage(msg)
-    result = await retrieve[T](self, reqID)
+    inc self.nextReqID 
+    result = await retrieveMulti[T](self, self.nextReqID-1)
+    
+
+proc sendRequestWithReqId[T](self: IBClient, msg: string): Future[Result[T]] {.async.} =
+    asyncCheck self.sendMessage(msg)
+    inc self.nextReqID 
+    result = await retrieve[T](self, self.nextReqID-1)
+    
 
 proc sendOrder(self: IBClient, msg: string, orderID: OrderID): Future[OrderTracker] {.async.} =
     asyncCheck self.sendMessage(msg)
@@ -405,20 +452,20 @@ proc listen(self: IBClient): Future[void] {.async.} =
             let thisReqID = parseInt(fields[1])
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
-                    if self.responses[reqID].isNil:
-                        self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: false)
+                    if self.responses[reqID].isNone:
+                        self.responses[reqID] = some(wrapResult(Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: false)))
                     else:
-                        self.responses[reqID].payload.add(fields)
+                        self.responses[reqID].get().value.payload.add(fields)
         of Incoming.CONTRACT_DATA_END:
             let thisReqId = parseInt(fields[1])
             for reqId in self.requests[ord(Incoming.CONTRACT_DATA)]:
                 if reqId == thisReqId:
-                    self.responses[reqID].ready = true
+                    self.responses[reqID].get().value.ready = true
         of Incoming.HISTORICAL_DATA:
             let thisReqID = parseInt(fields[0])
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
-                        self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
+                        self.responses[reqID] = some(wrapResult(Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)))
         of Incoming.OPEN_ORDER:
             self.handleOpenOrderUpdateMsg(fields)
         of Incoming.ORDER_STATUS:
@@ -439,12 +486,12 @@ proc listen(self: IBClient): Future[void] {.async.} =
             let thisReqID = parseInt(fields[1])
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
-                    self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
+                    self.responses[reqID] = some(wrapResult(Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)))
         of Incoming.SYMBOL_SAMPLES:
             let thisReqID = parseInt(fields[0])
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
-                    self.responses[reqID] = Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)
+                    self.responses[reqID] = some(wrapResult(Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true)))
         of Incoming.ERR_MSG:
             self.handleErrorMessage(fields)
         else:
@@ -477,7 +524,6 @@ proc connect*(self: IBClient, host: string , port: int, clientID: int) {.async.}
 ## requests
 
 proc reqContractDetails*(self: IBClient, contract: Contract): Future[seq[ContractDetails]] {.async.} =
-    inc(self.nextReqId)
     var msg = <>(REQ_CONTRACT_DATA) & <>(8) & <>(self.nextReqID) & <>(contract.conId)
     msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.lastTradeDateOrContractMonth)
     msg &= <>(contract.strike) & <>(contract.right) & <>(contract.multiplier)
@@ -485,11 +531,11 @@ proc reqContractDetails*(self: IBClient, contract: Contract): Future[seq[Contrac
     msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(contract.includeExpired)
     msg &= <>(contract.secIdType) & <>(contract.secId)
     self.registerReq(self.nextReqId, ord(Incoming.CONTRACT_DATA))
-    result = await sendRequestWithReqId[ContractDetails](self, msg, self.nextReqId)
+    let resp = await sendRequestWithReqIdMulti[ContractDetails](self, msg) 
+    result = expect resp
 
 proc reqHistoricalData*(self: IBClient, contract: Contract, endDateTime: DateTime, duration: string,
         barPeriod: string, whatToShow: string, useRTH: bool): Future[BarSeries] {.async.} =
-    inc(self.nextReqId)
     var msg = <>(REQ_HISTORICAL_DATA) & <>(self.nextReqId) & <>(contract.conId)
     msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.lastTradeDateOrContractMonth)
     msg &= <>(contract.strike) & <>(contract.right) & <>(contract.multiplier)
@@ -498,7 +544,8 @@ proc reqHistoricalData*(self: IBClient, contract: Contract, endDateTime: DateTim
     msg &= <>(endDateTime.format("yyyyMMdd HH:mm:ss") & " UTC") & <>(barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) & <>(1)
     msg &= <>(false) & <>("")
     self.registerReq(self.nextReqId, ord(Incoming.HISTORICAL_DATA))
-    result = (await sendRequestWithReqId[BarSeries](self, msg, self.nextReqId))[0]
+    let resp = await sendRequestWithReqId[BarSeries](self, msg)
+    result = expect resp
 
 proc reqHistoricalData*(self: IBClient, contract: Contract, duration: string, barPeriod: string,
         whatToShow: string, useRTH: bool): Future[BarSeries] {.async.} =
@@ -511,7 +558,8 @@ proc reqHistoricalData*(self: IBClient, contract: Contract, duration: string, ba
     msg &= <>("") & <>(barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) & <>(1)
     msg &= <>(false) & <>("")
     self.registerReq(self.nextReqId, ord(Incoming.HISTORICAL_DATA))
-    result = (await sendRequestWithReqId[BarSeries](self, msg, self.nextReqId))[0]
+    let resp = await sendRequestWithReqId[BarSeries](self, msg)
+    result = expect resp
 
 proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[OrderTracker] {.async.} =
     let orderID = await self.reqNextOrderID()
@@ -622,16 +670,6 @@ proc reqMatchingSymbol*(self: IBClient, pattern: string): Future[ContractDescrip
     var msg = <>(REQ_MATCHING_SYMBOLS) & <>(self.nextReqId) & <>(pattern)
     self.registerReq(self.nextReqId, ord(Incoming.SYMBOL_SAMPLES))
     result = (await sendRequestWithReqId[ContractDescriptionList](self, msg, self.nextReqId))[0]
-
-if isMainModule:
-    var client = newIBClient()
-    waitFor client.connect("127.0.0.1", 4002, 1)
-    echo client.account.netLiquidation #access the net liquidation value of the account
-    var contract = Contract(symbol: "AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
-    let details = waitFor client.reqContractDetails(contract) #request contract details
-    echo details[0].category #returns Apple's sector classification
-
-    waitFor client.reqMarketDataType(MarketDataType.Frozen)
 
 
 

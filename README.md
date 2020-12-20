@@ -16,6 +16,14 @@ It was only tested for trading stocks on US exchanges and against Gateway versio
 
 If you use this in a trading application, bear in mind that the client is single-threaded and constantly needs to keep spinning in order to process incoming messages in a timely manner. Thus, always use `sleepAsync` to avoid blocking the event loop.
 
+## Requests
+
+Essentially, there are three types of requests: requests that return value types, requests that return reference types and requests that do not return anything. Requests that return value types do not affect the state of the client, once the request is completed, the data is returned, nothing is cached in the client object. Reference type requests return handles to objects that are continuously updated. Currently, these are either `OrderTracker` or `Ticker`. The `Ticker` type is used to stream market data, the `OrderTracker` allows to track the order execution process. The client retains an internal reference to these objects in order to update them with incoming data. Requests that return nothing usually imply changing some configuration (like switching from realtime to delayed market data).
+
+## Error Handling
+
+The IB API frequently sends error messages, many of which are actually just for information and not a real error. They are therefore handled in a way not to interrupt the client's operation. Requests that return value types will throw an `IBError` if the API sends an error message that is attributed to this request. Requests that return reference types do not throw (at least not an error related to the API). Instead the error will be stored in the returned object, which can then be checked for errors. General information messages or unspecific errors are swallowed.
+
 ## Examples
 
 Connecting a client to the Gateway will immediately subscribe to account updates. The client will automatically keep the account state up-to-date, no API requests are needed. The account data can be accessed once the connection process is completed. In the example below, we define a contract for Apple stock on US exchanges and query contract details for it.

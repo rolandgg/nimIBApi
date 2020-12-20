@@ -7,9 +7,12 @@ var client = newIBClient()
 waitFor client.connect("127.0.0.1", 4002, 1)
 echo client.account.netLiquidation #access the net liquidation value of the account
 
-var contractList = waitFor client.reqMatchingSymbol("Siemens AG")
+var contractList = waitFor client.reqMatchingSymbol("SANOFI ORD")
 for contract in contractList:
-    echo contract.contract.symbol & ": " & contract.contract.primaryExchange       
+    echo contract.contract.symbol & ": " & contract.contract.primaryExchange & ": " & contract.contract.currency
+    var details = waitFor client.reqContractDetails(contract.contract)
+    echo details[0].secIdList
+    echo details[0].longName     
 #var contract = Contract(symbol:"SIE", secType: SecType.Stock, currency: "EUR", exchange: "SMART")
 #var details = waitFor client.reqContractDetails(contract)
 #echo details[0].secIdList

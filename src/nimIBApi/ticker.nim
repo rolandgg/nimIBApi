@@ -1,3 +1,4 @@
+import options
 import ibContractTypes, ibEnums
 type
     ShortDifficulty* = enum
@@ -9,6 +10,7 @@ type
         shortableShares*: int
         difficultyToShort*: ShortDifficulty
         receiving*: bool
+        error*: Option[tuple[code: int, msg: string]]
         marketDataSetting*: MarketDataType
 
 proc newTicker*(): Ticker = 

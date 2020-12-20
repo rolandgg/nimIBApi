@@ -1,5 +1,12 @@
-import os
+proc conv[T](x: T): auto =
+  when T is float:
+    return int(x)
+  else:
+    return float(x)
 
+let y = conv(1)
+let x = conv(2.4)
 
-for kind, path in walkDir("data"):
-  echo(path)
+echo y
+echo x
+
