@@ -13,7 +13,7 @@ include apiConstants
 
 type
     IBErrorMsg = tuple[code: int, msg: string]
-    IBError = object of CatchableError
+    IBError* = object of CatchableError
     MssgCode = int
     ReqID = int
     TickerID = int
@@ -656,20 +656,20 @@ proc reqMarketDataType*(self: IBClient, dataType: MarketDataType) {.async.} =
         await self.sendMessage(msg)
 
 proc reqFundamentalData*(self: IBClient, contract: Contract, kind: FundamentalDataType): Future[FundamentalReport] {.async.} =
-    inc(self.nextReqId)
     var msg = <>(REQ_FUNDAMENTAL_DATA) & <>(2) & <>(self.nextReqId) & <>(contract.conId)
     msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.exchange) & <>(contract.primaryExchange)
     msg &= <>(contract.currency) & <>(contract.localSymbol)
     msg &= <>(kind)
     msg &= <>("") #tag value list always empty
     self.registerReq(self.nextReqId, ord(Incoming.FUNDAMENTAL_DATA))
-    result = (await sendRequestWithReqId[FundamentalReport](self, msg, self.nextReqId))[0]
+    let resp = await sendRequestWithReqId[FundamentalReport](self, msg)
+    result = expect resp
 
 proc reqMatchingSymbol*(self: IBClient, pattern: string): Future[ContractDescriptionList] {.async.} =
-    inc(self.nextReqId)
     var msg = <>(REQ_MATCHING_SYMBOLS) & <>(self.nextReqId) & <>(pattern)
     self.registerReq(self.nextReqId, ord(Incoming.SYMBOL_SAMPLES))
-    result = (await sendRequestWithReqId[ContractDescriptionList](self, msg, self.nextReqId))[0]
+    let resp = await sendRequestWithReqId[ContractDescriptionList](self, msg)
+    result = expect resp
 
 
 

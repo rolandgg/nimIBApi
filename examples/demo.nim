@@ -5,14 +5,14 @@ import strutils, strformat, os
 
 var client = newIBClient()
 waitFor client.connect("127.0.0.1", 4002, 1)
-echo client.account.netLiquidation #access the net liquidation value of the account
+let contract = Contract(symbol:"AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
+try:
+    let bars = waitFor client.reqHistoricalData(contract, "1 M", "1 day", "MIDPOINT", true)
+except IBError:
+    echo "handle this"
 
-var contractList = waitFor client.reqMatchingSymbol("SANOFI ORD")
-for contract in contractList:
-    echo contract.contract.symbol & ": " & contract.contract.primaryExchange & ": " & contract.contract.currency
-    var details = waitFor client.reqContractDetails(contract.contract)
-    echo details[0].secIdList
-    echo details[0].longName     
+
+
 #var contract = Contract(symbol:"SIE", secType: SecType.Stock, currency: "EUR", exchange: "SMART")
 #var details = waitFor client.reqContractDetails(contract)
 #echo details[0].secIdList
