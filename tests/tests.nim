@@ -6,7 +6,7 @@ import unittest
 
 ## Running the test suite requires a connected Gateway on port 4002
 
-suite "Value type requests":
+suite "Stateless requests":
     setup:
         var client = newIBClient()
         waitFor client.connect("127.0.0.1", 4002, 1)
@@ -35,6 +35,38 @@ suite "Value type requests":
         else:
             expect(IBError):
                 let bars = waitFor client.reqHistoricalData(contract, "1 M", "1 day", "MIDPOINT", true)
+    
+suite "Orders": # run this only during US trading hours
+    setup:
+        var client = newIBClient()
+        waitFor client.connect("127.0.0.1", 4002, 1)
+    teardown:
+        client.disconnect()
+    
+    test "Market Order":
+        let contract = Contract(symbol:"AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
+        var order = initOrder()
+        order.totalQuantity = 10
+        order.orderType = OrderType.Market
+        order.action = Action.Buy
+        var orderTracker = waitFor client.placeOrder(contract, order)
+        waitForFill orderTracker
+        check(orderTracker.qtyFilled == 10.0)
+
+suite "Market Data":
+    setup:
+        var client = newIBClient()
+        waitFor client.connect("127.0.0.1", 4002, 1)
+    teardown:
+        client.disconnect()
+
+    test "Delayed":
+        let contract = Contract(symbol:"AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
+        waitFor client.reqMarketDataType(MarketDataType.Delayed)
+        var ticker = waitFor client.reqMktData(contract, false, false, @[GenericTickType.ShortableData])
+        waitFor sleepAsync(1_000)
+        check(ticker.bid != ticker.ask)
+
 
 
     

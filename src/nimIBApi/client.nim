@@ -3,7 +3,7 @@ import net
 import os
 import streams, strutils, sequtils
 import times
-import tables, sets, options
+import tables, sets, options, results
 
 import utils, message, ibEnums, ibContractTypes, position, ibMarketDataTypes
 import ibTickTypes, ibOrderTypes, ibExecutionTypes, ibFundamentalDataTypes
@@ -23,9 +23,7 @@ type
         mssgCode: MssgCode
         ready: bool
         payload: seq[seq[string]]
-    Result[T] = object
-        value: T
-        error: Option[IBErrorMsg]
+    IBResult[T] = Result[T,IBErrorMsg]
     ConnectionState = enum
         csConnecting, csConnected, csDisconnected
     IBClient* = ref object

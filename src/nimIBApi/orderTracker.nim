@@ -1,5 +1,6 @@
 import options
 import ibOrderTypes, ibContractTypes, ibExecutionTypes
+import asyncdispatch
 
 type
     OrderTracker* = ref object
@@ -24,6 +25,10 @@ proc isFilled*(order: OrderTracker): bool =
         return true
     else:
         return false
+
+proc waitForFill*(order: OrderTracker, pollPeriod = 1) =
+    while not(order.isFilled):
+        poll()
 
 proc commission*(order: OrderTracker): float {.inline.} =
     return order.orderState.commission
