@@ -1,10 +1,8 @@
-import results
+
+var i = 0
 
 
-type
-  R = Result[int,string]
-
-var res: R = R.ok 42
-
-var res2: R = R.err "error"
-
+let x = block:
+  while i < 10:
+    inc i
+  i

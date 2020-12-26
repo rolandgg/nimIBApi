@@ -7,6 +7,7 @@ import tables, sets, options, results
 
 import utils, message, ibEnums, ibContractTypes, position, ibMarketDataTypes
 import ibTickTypes, ibOrderTypes, ibExecutionTypes, ibFundamentalDataTypes
+import ibScannerTypes
 import orderTracker, handlers, ticker
 import account
 include apiConstants
@@ -23,7 +24,7 @@ type
         mssgCode: MssgCode
         ready: bool
         payload: seq[seq[string]]
-    IBResult[T] = Result[T,IBErrorMsg]
+    IBResult[T] = Result[T, IBErrorMsg]
     ConnectionState = enum
         csConnecting, csConnected, csDisconnected
     IBClient* = ref object
@@ -41,11 +42,11 @@ type
         portfolio*: Portfolio
         listenerTask: Future[void]
         keepAliveTask: Future[void]
-        requests: Table[MssgCode, seq[int]]
+        requests: Table[MssgCode, HashSet[int]]
         responses: Table[int, Option[IBResult[Response]]]
         orders: Table[OrderID, OrderTracker]
         tickers: Table[TickerID, Ticker]
-        tickerUpdateHandlers: Table[TickerID, proc(ticker: Ticker) {.async.} ]
+        tickerUpdateHandlers: Table[TickerID, proc(ticker: Ticker) {.async.}]
         orderUpdateHandlers: Table[OrderID, proc(order: OrderTracker)]
         accountUpdateHandler: proc(account: Account)
         positionUpdateHandler: proc(portfolio: Portfolio)
@@ -170,7 +171,7 @@ proc handleExecutionDataMsg(self: IBClient, payload: seq[string]) =
 
 proc handleCommissionReportMsg(self: IBClient, payload: seq[string]) =
     let com = handle[CommissionReport](payload)
-    for orderId,order in self.orders.pairs: # this is potentially dangerous! assuming that execution data will always arrive before the commission report!
+    for orderId, order in self.orders.pairs: # this is potentially dangerous! assuming that execution data will always arrive before the commission report!
         for exec in order.executions:
             if exec.execId == com.execId:
                 order.commissionReports.add(com)
@@ -202,7 +203,8 @@ proc handleOpenOrderUpdateMsg(self: IBClient, payload: seq[string]) =
     else:
         self.orders[orderId] = tracker
 
-proc handleTickMsg(self: IBClient, payload: seq[string], id: TickerID, msgCode: Incoming) =
+proc handleTickMsg(self: IBClient, payload: seq[string], id: TickerID,
+        msgCode: Incoming) =
     case msgCode
     of Incoming.TICK_PRICE:
         let priceTick = handle[PriceTick](payload)
@@ -252,6 +254,17 @@ proc handleMarketDataTypeMsg(self: IBClient, payload: seq[string]) =
     if self.tickers.hasKey(reqID):
         self.tickers[reqId].marketDataSetting = self.marketDataSetting
 
+proc handleResponse(self: IBClient, thisReqID: int, mssgCode: int, payload: seq[string]) =
+    if thisReqID < 0: #if no reqID for this request, serve all pending requests the same response
+        for reqID in self.requests[mssgCode]:
+            self.responses[reqID] = some(IBResult[Response].ok Response(
+                    reqID: thisReqID, mssgCode: mssgCode, payload: @[payload], ready: true))
+            return
+    for reqID in self.requests[mssgCode]:
+        if reqID == thisReqID:
+            self.responses[reqID] = some(IBResult[Response].ok Response(
+                    reqID: thisReqID, mssgCode: mssgCode, payload: @[payload], ready: true))
+
 proc handleErrorMessage(self: IBClient, payload: seq[string]) =
     var fields = newFieldStream(payload)
     fields.skip
@@ -261,12 +274,13 @@ proc handleErrorMessage(self: IBClient, payload: seq[string]) =
     reqID << fields
     errorCode << fields
     errorMsg << fields
-    
+
     if reqID > -1:
         for mssgCode, reqIDs in self.requests.mpairs:
             reqIDs.keepIf(proc (x: int): bool = x != reqID)
         if self.responses.hasKey(reqID):
-            self.responses[reqID] = some(IBResult[Response].err (code: errorCode, msg: errorMsg))
+            self.responses[reqID] = some(IBResult[Response].err (
+                    code: errorCode, msg: errorMsg))
         if self.tickers.hasKey((reqID)):
             self.tickers[reqId].error = some((code: errorCode, msg: errorMsg))
         if self.orders.hasKey((reqID)):
@@ -279,9 +293,10 @@ proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
     if not(self.requests.hasKey(mssgCode)):
         self.requests[mssgCode] = @[]
     self.requests[mssgCode].add(reqID)
-    self.responses[reqID] = none(Result[Response,IBErrorMsg])
+    self.responses[reqID] = none(Result[Response, IBErrorMsg])
 
-proc readMessage(self: IBClient): Future[tuple[id: int, payload: seq[string]]] {.async.} =
+proc readMessage(self: IBClient): Future[tuple[id: int, payload: seq[
+        string]]] {.async.} =
 
     # We use a buffered socket so that recv will block until the requested number of bytes is received.
     # This is important, because otherwise the asyncio based architecture will not work,
@@ -307,20 +322,20 @@ proc retrieveMulti[T](self: IBClient, reqId: int): Future[IBResult[seq[T]]] {.as
     if not(self.responses.hasKey(reqId)):
         return IBResult[seq[T]].err (code: -1, msg: "No data returned")
     while true:
-      let resp = self.responses[reqID].get()
-      if resp.isErr:
-          result = IBResult[seq[T]].err resp.error
-          self.responses.del(reqId)
-          return
-      if self.responses[reqID].get().get().ready:
-        var res: seq[T] = @[]
-        for line in self.responses[reqId].get().value.payload:
-          res.add(handle[T](line))
-        result = IBResult[seq[T]].ok res
-        self.responses.del(reqId)
-        return
-      poll()
-    
+        let resp = self.responses[reqID].get()
+        if resp.isErr:
+            result = IBResult[seq[T]].err resp.error
+            self.responses.del(reqId)
+            return
+        if self.responses[reqID].get().get().ready:
+            var res: seq[T] = @[]
+            for line in self.responses[reqId].get().value.payload:
+                res.add(handle[T](line))
+            result = IBResult[seq[T]].ok res
+            self.responses.del(reqId)
+            return
+        poll()
+
 proc retrieve[T](self: IBClient, reqId: int): Future[IBResult[T]] {.async.} =
     while self.responses.hasKey(reqId):
         if self.responses[reqID].isSome:
@@ -348,28 +363,32 @@ proc retrieveTicker(self: IBClient, tickerId: TickerID): Future[Ticker] {.async.
 proc sendMessage(self: IBClient, msg: string) {.async.} =
     asyncCheck self.socket.send(newMessage(msg))
 
-proc sendRequestWithReqIdMulti[T](self: IBClient, msg: string): Future[IBResult[seq[T]]] {.async.} =
+proc sendRequestWithReqIdMulti[T](self: IBClient, msg: string): Future[IBResult[
+        seq[T]]] {.async.} =
     asyncCheck self.sendMessage(msg)
-    inc self.nextReqID 
+    inc self.nextReqID
     result = await retrieveMulti[T](self, self.nextReqID-1)
-    
 
-proc sendRequestWithReqId[T](self: IBClient, msg: string): Future[IBResult[T]] {.async.} =
+
+proc sendRequestWithReqId[T](self: IBClient, msg: string): Future[IBResult[
+        T]] {.async.} =
     asyncCheck self.sendMessage(msg)
-    inc self.nextReqID 
+    inc self.nextReqID
     result = await retrieve[T](self, self.nextReqID-1)
-    
 
-proc sendOrder(self: IBClient, msg: string, orderID: OrderID): Future[OrderTracker] {.async.} =
+
+proc sendOrder(self: IBClient, msg: string, orderID: OrderID): Future[
+        OrderTracker] {.async.} =
     asyncCheck self.sendMessage(msg)
-    result = await retrieveOrder(self,orderID)
+    result = await retrieveOrder(self, orderID)
 
-proc sendTicker(self: IBClient, msg: string, tickerID: TickerID, contract: Contract): Future[Ticker] {.async.} =
+proc sendTicker(self: IBClient, msg: string, tickerID: TickerID,
+        contract: Contract): Future[Ticker] {.async.} =
     self.tickers[tickerID] = newTicker()
     self.tickers[tickerID].contract = contract # attach contract
     asyncCheck self.sendMessage(msg)
-    result = await retrieveTicker(self,tickerID)
-    
+    result = await retrieveTicker(self, tickerID)
+
 # unexposed requests
 
 proc reqCurrentTime(self: IBClient) {.async.} =
@@ -383,7 +402,7 @@ proc reqNextOrderID(self: IBClient): Future[OrderID] {.async.} =
     while self.nextOrderID == -1:
         await sleepAsync(5)
     result = self.nextOrderID
-    
+
 proc reqAcctUpdate(self: IBClient, subscribe: bool) {.async.} =
     self.account.updated = false
     var msg = <>(REQ_ACCT_DATA) & <>(2) & <>(subscribe) & <>("")
@@ -436,7 +455,9 @@ proc listen(self: IBClient): Future[void] {.async.} =
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
                     if self.responses[reqID].isNone:
-                        self.responses[reqID] = some(IBResult[Response].ok Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: false))
+                        self.responses[reqID] = some(IBResult[
+                                Response].ok Response(reqId: thisReqID,
+                                mssgCode: messageCode, payload: @[fields], ready: false))
                     else:
                         self.responses[reqID].get().value.payload.add(fields)
         of Incoming.CONTRACT_DATA_END:
@@ -448,7 +469,9 @@ proc listen(self: IBClient): Future[void] {.async.} =
             let thisReqID = parseInt(fields[0])
             for reqID in self.requests[messageCode]:
                 if reqID == thisReqID:
-                        self.responses[reqID] = some(IBResult[Response].ok Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true))
+                    self.responses[reqID] = some(IBResult[Response].ok Response(
+                            reqId: thisReqID, mssgCode: messageCode, payload: @[
+                            fields], ready: true))
         of Incoming.OPEN_ORDER:
             self.handleOpenOrderUpdateMsg(fields)
         of Incoming.ORDER_STATUS:
@@ -457,36 +480,36 @@ proc listen(self: IBClient): Future[void] {.async.} =
             self.handleCommissionReportMsg(fields)
         of Incoming.EXECUTION_DATA:
             self.handleExecutionDataMsg(fields)
-        of Incoming.TICK_PRICE, Incoming.TICK_SIZE, Incoming.TICK_STRING, Incoming.TICK_GENERIC:
+        of Incoming.TICK_PRICE, Incoming.TICK_SIZE, Incoming.TICK_STRING,
+                Incoming.TICK_GENERIC:
             let thisTickerID = parseInt(fields[1])
             if not(self.tickers.hasKey(thisTickerID)):
                 return
             self.tickers[thisTickerID].receiving = true
-            self.handleTickMsg(fields,thisTickerId,Incoming(messageCode))
+            self.handleTickMsg(fields, thisTickerId, Incoming(messageCode))
         of Incoming.MARKET_DATA_TYPE:
             self.handleMarketDataTypeMsg(fields)
         of Incoming.FUNDAMENTAL_DATA:
             let thisReqID = parseInt(fields[1])
-            for reqID in self.requests[messageCode]:
-                if reqID == thisReqID:
-                    self.responses[reqID] = some(IBResult[Response].ok Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true))
+            self.handleResponse(thisReqID, messageCode, fields)
         of Incoming.SYMBOL_SAMPLES:
             let thisReqID = parseInt(fields[0])
-            for reqID in self.requests[messageCode]:
-                if reqID == thisReqID:
-                    self.responses[reqID] = some(IBResult[Response].ok Response(reqId: thisReqID, mssgCode: messageCode, payload: @[fields], ready: true))
+            self.handleResponse(thisReqID, messageCode, fields)
         of Incoming.ERR_MSG:
             self.handleErrorMessage(fields)
+        of Incoming.SCANNER_PARAMETERS:
+            let thisReqID = -1 #no reqID transmitted for this request
+            self.handleResponse(thisReqID, messageCode, fields)
         else:
             discard
             # self.requests[messageCode] = @[] #delete served requests
-        
+
 proc keepAlive(self: IBClient): Future[void] {.async.} =
     while self.conState == csConnected:
         await self.reqCurrentTime()
         await sleepAsync(1000)
 
-proc connect*(self: IBClient, host: string , port: int, clientID: int) {.async.} =
+proc connect*(self: IBClient, host: string, port: int, clientID: int) {.async.} =
     if self.conState == csConnected:
         return
     self.clientID = clientID
@@ -506,93 +529,126 @@ proc connect*(self: IBClient, host: string , port: int, clientID: int) {.async.}
 
 ## requests
 
-proc reqContractDetails*(self: IBClient, contract: Contract): Future[seq[ContractDetails]] {.async.} =
+proc reqContractDetails*(self: IBClient, contract: Contract): Future[seq[
+        ContractDetails]] {.async.} =
     var msg = <>(REQ_CONTRACT_DATA) & <>(8) & <>(self.nextReqID) & <>(contract.conId)
-    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.lastTradeDateOrContractMonth)
+    msg &= <>(contract.symbol) & <>($contract.secType) & <>(
+            contract.lastTradeDateOrContractMonth)
     msg &= <>(contract.strike) & <>(contract.right) & <>(contract.multiplier)
-    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(contract.currency)
-    msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(contract.includeExpired)
+    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(
+            contract.currency)
+    msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(
+            contract.includeExpired)
     msg &= <>(contract.secIdType) & <>(contract.secId)
     self.registerReq(self.nextReqId, ord(Incoming.CONTRACT_DATA))
-    let resp = await sendRequestWithReqIdMulti[ContractDetails](self, msg) 
+    let resp = await sendRequestWithReqIdMulti[ContractDetails](self, msg)
     result = resp.tryGet()
 
-proc reqHistoricalData*(self: IBClient, contract: Contract, endDateTime: DateTime, duration: string,
-        barPeriod: string, whatToShow: string, useRTH: bool): Future[BarSeries] {.async.} =
+proc reqHistoricalData*(self: IBClient, contract: Contract,
+        endDateTime: DateTime, duration: string,
+
+barPeriod: string, whatToShow: string, useRTH: bool): Future[BarSeries] {.async.} =
     var msg = <>(REQ_HISTORICAL_DATA) & <>(self.nextReqId) & <>(contract.conId)
-    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.lastTradeDateOrContractMonth)
+    msg &= <>(contract.symbol) & <>($contract.secType) & <>(
+            contract.lastTradeDateOrContractMonth)
     msg &= <>(contract.strike) & <>(contract.right) & <>(contract.multiplier)
-    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(contract.currency)
-    msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(contract.includeExpired) 
-    msg &= <>(endDateTime.format("yyyyMMdd HH:mm:ss") & " UTC") & <>(barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) & <>(1)
+    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(
+            contract.currency)
+    msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(
+            contract.includeExpired)
+    msg &= <>(endDateTime.format("yyyyMMdd HH:mm:ss") & " UTC") & <>(
+            barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) & <>(1)
     msg &= <>(false) & <>("")
     self.registerReq(self.nextReqId, ord(Incoming.HISTORICAL_DATA))
     let resp = await sendRequestWithReqId[BarSeries](self, msg)
     result = resp.tryGet()
 
-proc reqHistoricalData*(self: IBClient, contract: Contract, duration: string, barPeriod: string,
-        whatToShow: string, useRTH: bool): Future[BarSeries] {.async.} =
+proc reqHistoricalData*(self: IBClient, contract: Contract, duration: string,
+        barPeriod: string, whatToShow: string, useRTH: bool): Future[
+                BarSeries] {.async.} =
     inc(self.nextReqId)
     var msg = <>(REQ_HISTORICAL_DATA) & <>(self.nextReqId) & <>(contract.conId)
-    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.lastTradeDateOrContractMonth)
+    msg &= <>(contract.symbol) & <>($contract.secType) & <>(
+            contract.lastTradeDateOrContractMonth)
     msg &= <>(contract.strike) & <>(contract.right) & <>(contract.multiplier)
-    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(contract.currency)
-    msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(contract.includeExpired) 
-    msg &= <>("") & <>(barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) & <>(1)
+    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(
+            contract.currency)
+    msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(
+            contract.includeExpired)
+    msg &= <>("") & <>(barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) &
+            <>(1)
     msg &= <>(false) & <>("")
     self.registerReq(self.nextReqId, ord(Incoming.HISTORICAL_DATA))
     let resp = await sendRequestWithReqId[BarSeries](self, msg)
     result = resp.tryGet()
 
-proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[OrderTracker] {.async.} =
+proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[
+        OrderTracker] {.async.} =
     let orderID = await self.reqNextOrderID()
     var msg = <>(PLACE_ORDER) & <>(orderID)
     # contract fields
     msg &= <>(contract.conId)
-    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.lastTradeDateOrContractMonth)
+    msg &= <>(contract.symbol) & <>($contract.secType) & <>(
+            contract.lastTradeDateOrContractMonth)
     msg &= <>(contract.strike) & <>(contract.right) & <>(contract.multiplier)
-    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(contract.currency)
+    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(
+            contract.currency)
     msg &= <>(contract.localSymbol) & <>(contract.tradingClass)
     msg &= <>(contract.secIdType) & <>(contract.secId)
     # main order fields
-    msg &= <>(order.action) & <>(order.totalQuantity) & <>(order.orderType) & <>(order.lmtPrice)
+    msg &= <>(order.action) & <>(order.totalQuantity) & <>(order.orderType) &
+            <>(order.lmtPrice)
     msg &= <>(order.auxPrice)
     # extended order fields
-    msg &= <>(order.tif) & <>(order.ocaGroup) & <>(order.account) & <>(order.openClose)
+    msg &= <>(order.tif) & <>(order.ocaGroup) & <>(order.account) & <>(
+            order.openClose)
     msg &= <>(order.origin) & <>(order.orderRef) & <>(order.transmit) & <>(order.parentId)
-    msg &= <>(order.blockOrder) & <>(order.sweepToFill) & <>(order.displaySize) & <>(order.triggerMethod)
+    msg &= <>(order.blockOrder) & <>(order.sweepToFill) & <>(
+            order.displaySize) & <>(order.triggerMethod)
     msg &= <>(order.outsideRth) & <>(order.hidden)
     # no support for BAG orders!
     msg &= <>("") # deprecated sharesAllocation field
-    msg &= <>(order.discretionaryAmt) & <>(order.goodAfterTime) & <>(order.goodTillDate)
-    msg &= <>(order.faGroup) & <>(order.faMethod) & <>(order.faPercentage) & <>(order.faProfile)
-    msg &= <>(order.modelCode) & <>(order.shortSaleSlot) & <>(order.designatedLocation)
-    msg &= <>(order.exemptCode) & <>(order.ocaType) & <>(order.rule80A) & <>(order.settlingFirm)
-    msg &= <>(order.allOrNone) & <>(order.minQty) & <>(order.percentOffset) & <>(order.eTradeOnly)
-    msg &= <>(order.firmQuoteOnly) & <>(order.nbboPriceCap) & <>(order.auctionStrategy)
+    msg &= <>(order.discretionaryAmt) & <>(order.goodAfterTime) & <>(
+            order.goodTillDate)
+    msg &= <>(order.faGroup) & <>(order.faMethod) & <>(order.faPercentage) & <>(
+            order.faProfile)
+    msg &= <>(order.modelCode) & <>(order.shortSaleSlot) & <>(
+            order.designatedLocation)
+    msg &= <>(order.exemptCode) & <>(order.ocaType) & <>(order.rule80A) & <>(
+            order.settlingFirm)
+    msg &= <>(order.allOrNone) & <>(order.minQty) & <>(order.percentOffset) &
+            <>(order.eTradeOnly)
+    msg &= <>(order.firmQuoteOnly) & <>(order.nbboPriceCap) & <>(
+            order.auctionStrategy)
     msg &= <>(order.startingPrice) & <>(order.stockRefPrice) & <>(order.delta)
     msg &= <>(order.stockRangeLower) & <>(order.stockRangeUpper)
-    msg &= <>(order.overridePercentageConstraints) & <>(order.volatility) & <>(order.volatilityType)
+    msg &= <>(order.overridePercentageConstraints) & <>(order.volatility) & <>(
+            order.volatilityType)
     msg &= <>(order.deltaNeutralOrderType) & <>(order.deltaNeutralAuxPrice)
     if order.deltaNeutralOrderType != OrderType.Unset:
         msg &= <>(order.deltaNeutralConId) & <>(order.deltaNeutralSettlingFirm)
-        msg &= <>(order.deltaNeutralClearingAccount) & (order.deltaNeutralClearingIntent)
+        msg &= <>(order.deltaNeutralClearingAccount) & (
+                order.deltaNeutralClearingIntent)
         msg &= <>(order.deltaNeutralOpenClose) & <>(order.deltaNeutralShortSale)
-        msg &= <>(order.deltaNeutralShortSaleSlot) & <>(order.deltaNeutralDesignatedLocation)
+        msg &= <>(order.deltaNeutralShortSaleSlot) & <>(
+                order.deltaNeutralDesignatedLocation)
     msg &= <>(order.continuousUpdate) & <>(order.referencePriceType)
     msg &= <>(order.trailStopPrice) & <>(order.trailingPercent)
     msg &= <>(order.scaleInitLevelSize) & <>(order.scaleSubsLevelSize)
     msg &= <>(order.scalePriceIncrement)
     if order.scalePriceIncrement > 0 and order.scalePriceIncrement != UNSET_FLOAT:
-        msg &= <>(order.scalePriceAdjustValue) & <>(order.scalePriceAdjustInterval)
+        msg &= <>(order.scalePriceAdjustValue) & <>(
+                order.scalePriceAdjustInterval)
         msg &= <>(order.scaleProfitOffset) & <>(order.scaleAutoReset)
         msg &= <>(order.scaleInitPosition) & <>(order.scaleInitFillQty)
         msg &= <>(order.scaleRandomPercent)
-    msg &= <>(order.scaleTable) & <>(order.activeStartTime) & <>(order.activeStopTime)
+    msg &= <>(order.scaleTable) & <>(order.activeStartTime) & <>(
+            order.activeStopTime)
     msg &= <>(order.hedgeType)
     if order.hedgeType != HedgeType.Unset:
         msg &= <>(order.hedgeParam)
-    msg &= <>(order.optOutSmartRouting) & <>(order.clearingAccount) & <>(order.clearingIntent)
+    msg &= <>(order.optOutSmartRouting) & <>(order.clearingAccount) & <>(
+            order.clearingIntent)
     msg &= <>(order.notHeld)
     msg &= <>(false) # no support for deltaNeutralContract for now!
     msg &= <>("") # no support for algo orders for now!
@@ -603,29 +659,36 @@ proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[Order
     msg &= <>(order.randomizeSize) & <>(order.randomizePrice)
     #PEG BENCH orders not supported!
     msg &= <>(0) #order conditions not supported!
-    msg &= <>(order.adjustedOrderType) & <>(order.triggerPrice) & <>(order.lmtPriceOffset)
-    msg &= <>(order.adjustedStopPrice) & <>(order.adjustedStopLimitPrice) & <>(order.adjustedTrailingAmount)
+    msg &= <>(order.adjustedOrderType) & <>(order.triggerPrice) & <>(
+            order.lmtPriceOffset)
+    msg &= <>(order.adjustedStopPrice) & <>(order.adjustedStopLimitPrice) & <>(
+            order.adjustedTrailingAmount)
     msg &= <>(order.adjustableTrailingUnit) & <>(order.extOperator)
     msg &= <>("") & <>("") # soft dollar tier not supported yet!
-    msg &= <>(order.cashQty) & <>(order.mifid2DecisionMaker) & <>(order.mifid2DecisionAlgo)
+    msg &= <>(order.cashQty) & <>(order.mifid2DecisionMaker) & <>(
+            order.mifid2DecisionAlgo)
     msg &= <>(order.mifid2ExecutionTrader) & <>(order.mifid2ExecutionAlgo)
     msg &= <>(order.dontUseAutoPriceForHedge) & <>(order.isOmsContainer)
     msg &= <>(order.discretionaryUpToLimitPrice) & <>(order.usePriceMgmtAlgo)
     self.orders[orderID] = await self.sendOrder(msg, orderID) #store orders in client
     return self.orders[orderID] # return handle to the OrderTracker
 
-proc reqMktData*(self: IBClient, contract: Contract, snapshot: bool, regulatory: bool = false, additionalData:seq[GenericTickType] = @[],
-        callback: proc(ticker: Ticker) {.async.} = nil): Future[Ticker] {.async.} =
+proc reqMktData*(self: IBClient, contract: Contract, snapshot: bool,
+        regulatory: bool = false, additionalData: seq[GenericTickType] = @[],
+
+callback: proc(ticker: Ticker) {.async.} = nil): Future[Ticker] {.async.} =
     inc self.nextTickerID
     var genericTicks = ""
     for tickType in additionalData:
-        addSep(genericTicks,",")
-        add(genericTicks,$tickType)
+        addSep(genericTicks, ",")
+        add(genericTicks, $tickType)
     var msg = <>(REQ_MKT_DATA) & <>(11) & <>(self.nextTickerID)
     msg &= <>(contract.conId)
-    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.lastTradeDateOrContractMonth)
+    msg &= <>(contract.symbol) & <>($contract.secType) & <>(
+            contract.lastTradeDateOrContractMonth)
     msg &= <>(contract.strike) & <>(contract.right) & <>(contract.multiplier)
-    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(contract.currency)
+    msg &= <>(contract.exchange) & <>(contract.primaryExchange) & <>(
+            contract.currency)
     msg &= <>(contract.localSymbol) & <>(contract.tradingClass)
     msg &= <>(false) & <>(genericTicks) & <>(snapshot) & <>(regulatory)
     msg &= <>("") #options
@@ -638,9 +701,11 @@ proc reqMarketDataType*(self: IBClient, dataType: MarketDataType) {.async.} =
         var msg = <>(REQ_MARKET_DATA_TYPE) & <>(1) & <>(dataType)
         await self.sendMessage(msg)
 
-proc reqFundamentalData*(self: IBClient, contract: Contract, kind: FundamentalDataType): Future[FundamentalReport] {.async.} =
+proc reqFundamentalData*(self: IBClient, contract: Contract,
+        kind: FundamentalDataType): Future[FundamentalReport] {.async.} =
     var msg = <>(REQ_FUNDAMENTAL_DATA) & <>(2) & <>(self.nextReqId) & <>(contract.conId)
-    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.exchange) & <>(contract.primaryExchange)
+    msg &= <>(contract.symbol) & <>($contract.secType) & <>(contract.exchange) &
+            <>(contract.primaryExchange)
     msg &= <>(contract.currency) & <>(contract.localSymbol)
     msg &= <>(kind)
     msg &= <>("") #tag value list always empty
@@ -648,12 +713,22 @@ proc reqFundamentalData*(self: IBClient, contract: Contract, kind: FundamentalDa
     let resp = await sendRequestWithReqId[FundamentalReport](self, msg)
     result = resp.tryGet()
 
-proc reqMatchingSymbol*(self: IBClient, pattern: string): Future[ContractDescriptionList] {.async.} =
+proc reqMatchingSymbol*(self: IBClient, pattern: string): Future[
+        ContractDescriptionList] {.async.} =
     var msg = <>(REQ_MATCHING_SYMBOLS) & <>(self.nextReqId) & <>(pattern)
     self.registerReq(self.nextReqId, ord(Incoming.SYMBOL_SAMPLES))
     let resp = await sendRequestWithReqId[ContractDescriptionList](self, msg)
     result = resp.tryGet()
 
+proc reqScannerParams*(self: IBClient): Future[ScannerParams] {.async.} =
+    var msg = <>(REQ_SCANNER_PARAMETERS) & <>(1)
+    self.reqisterReq(self.nextReqId, ord(Incoming.SCANNER_PARAMETERS))
+    let resp = await sendRequestWithReqId[ScannerParams](self, msg)
+    result = resp.tryGet()
+
+proc reqScannerSubscription*(self: IBClient, reqId: int,
+  subscription: ScannerSubscription,
+  scannerSubscriptionOptions, scannerSubscriptionFilterOptions: seq[tuple[string,string]]) = discard
 
 
 

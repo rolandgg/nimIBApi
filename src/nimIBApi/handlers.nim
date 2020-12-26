@@ -1,4 +1,5 @@
 import utils, ibContractTypes, ibOrderTypes, ibExecutionTypes, ibMarketDataTypes, ibEnums, ibTickTypes, ibFundamentalDataTypes
+import ibScannerTypes
 import OrderTracker
 
 import bitops
@@ -345,6 +346,12 @@ proc handle*[T](payload: seq[string]): T =
                 result[i] = ContractDescription(contract: contract, derivativeSecTypesList: derivativeSecTypesList)
             else:
                  result[i] = ContractDescription(contract: contract, derivativeSecTypesList: @[])
+
+    elif T is ScannerParams:
+      fields.skip
+      result.xml << fields
+
+
 
 
 
