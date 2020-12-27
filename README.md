@@ -22,7 +22,7 @@ Essentially, there are three types of requests: requests that return value types
 
 ## Error Handling
 
-The IB API frequently sends error messages, many of which are actually just for information and not a real error. They are therefore handled in a way not to interrupt the client's operation. Requests that return value types will throw an `IBError` if the API sends an error message that is attributed to this request. Requests that return reference types do not throw (at least not an error related to the API). Instead the error will be stored in the returned object, which can then be checked for errors. General information messages or unspecific errors are swallowed.
+The IB API frequently sends error messages, many of which are actually just for information and not a real error. They are handled in a way not to interrupt the client's operation. Requests that return value types will throw an `IBError` if the API sends an error message that is attributed to this request. Requests that return reference types do not throw (at least not an error related to the API). Instead the error will be stored in the returned object, which can then be checked for errors. General information messages or unspecific errors are swallowed.
 
 ## Examples
 

@@ -5,36 +5,7 @@ import strutils, strformat, os
 
 var client = newIBClient()
 waitFor client.connect("127.0.0.1", 4002, 1)
-let contract = Contract(symbol:"AAPL", secType: SecType.Stock, currency: "USD", exchange: "SMART")
-try:
-    let bars = waitFor client.reqHistoricalData(contract, "1 M", "1 day", "MIDPOINT", true)
-except IBError:
-    echo "handle this"
-
-
-
-#var contract = Contract(symbol:"SIE", secType: SecType.Stock, currency: "EUR", exchange: "SMART")
-#var details = waitFor client.reqContractDetails(contract)
-#echo details[0].secIdList
-#var fundamentalData = waitFor client.reqFundamentalData((details[0]).contract, FundamentalDataType.FinStatements)
-
-#fundamentalData.save("SIE.xml")
-#echo fundamentalData.totalAssets # total Assets (latest)
-#echo fundamentalData.gpm # gross profit margin (trailing twelve months)
-
-# var order = initOrder()
-# order.totalQuantity = 10
-# order.orderType = OrderType.Market
-# order.action = Action.Buy
-# var orderTracker = waitFor client.placeOrder(contract, order)
-# waitFor sleepAsync(10_000)
-#waitFor client.reqMarketDataType(MarketDataType.Delayed)
-#var ticker = waitFor client.reqMktData(contract, false, false, @[GenericTickType.ShortableData])
-
-#waitFor sleepAsync(2_000) # wait a bit for ticks to come in
-#echo ticker.bid
-#echo ticker.ask # access the current bid/ask prices
-# echo ticker.marketDataSetting
-# waitFor client.reqMarketDataType(MarketDataType.Delayed)
-# waitFor sleepAsync(2_000)
-# echo ticker.marketDataSetting
+let params = waitFor client.reqScannerParams()
+var file = newFileStream("scanner.xml", fmWrite)
+file.write(params.xml)
+file.close

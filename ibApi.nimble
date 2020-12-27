@@ -11,4 +11,6 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.2.6"
-requires "json_serialization >= 0.1.0"
+#requires "json_serialization >= 0.1.0"
+requires "timezones >= 0.5.3"
+requires "result"
