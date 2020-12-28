@@ -327,9 +327,10 @@ proc retrieveMulti[T](self: IBClient, reqId: int): Future[IBResult[seq[T]]] {.as
       result = IBResult[seq[T]].err resp.error
       self.responses.del(reqId)
       return
-    if self.responses[reqID].get().get().ready:
+    if resp.get().ready:
+      let unwrap = resp.get()
       var res: seq[T] = @[]
-      for line in self.responses[reqId].get().value.payload:
+      for line in unwrap.payload:
         res.add(handle[T](line))
       result = IBResult[seq[T]].ok res
       self.responses.del(reqId)
@@ -459,12 +460,12 @@ proc listen(self: IBClient): Future[void] {.async.} =
                     Response].ok Response(reqId: thisReqID,
                     mssgCode: messageCode, payload: @[fields], ready: false))
           else:
-            self.responses[reqID].get().value.payload.add(fields)
+            self.responses[reqID].get().get().payload.add(fields)
     of Incoming.CONTRACT_DATA_END:
       let thisReqId = parseInt(fields[1])
       for reqId in self.requests[ord(Incoming.CONTRACT_DATA)]:
         if reqId == thisReqId:
-          self.responses[reqID].get().value.ready = true
+          self.responses[reqID].get().get().ready = true
     of Incoming.HISTORICAL_DATA:
       let thisReqID = parseInt(fields[0])
       for reqID in self.requests[messageCode]:
@@ -513,19 +514,19 @@ proc connect*(self: IBClient, host: string, port: int, clientID: int) {.async.} 
   if self.conState == csConnected:
     return
   self.clientID = clientID
-  waitFor self.socket.connect(host, Port(port))
+  await self.socket.connect(host, Port(port))
   # initial handshake
-  waitFor self.socket.send(API_SIGN)
+  await self.socket.send(API_SIGN)
   var msg = "v" & $MIN_CLIENT_VER & ".." & $MAX_CLIENT_VER
-  waitFor self.socket.send(newMessage(msg))
+  await self.socket.send(newMessage(msg))
   self.conState = csConnecting
-  var (serverVersion, _) = waitFor self.readMessage()
+  var (serverVersion, _) = await self.readMessage()
   self.serverVersion = serverVersion
   self.conState = csConnected
-  waitFor self.startAPI()
+  await self.startAPI()
   asyncCheck self.listen()
   asyncCheck self.keepAlive()
-  waitFor self.reqAcctUpdate(true)
+  await self.reqAcctUpdate(true)
 
 ## requests
 
@@ -545,9 +546,8 @@ proc reqContractDetails*(self: IBClient, contract: Contract): Future[seq[
   result = resp.tryGet()
 
 proc reqHistoricalData*(self: IBClient, contract: Contract,
-        endDateTime: DateTime, duration: string,
-
-barPeriod: string, whatToShow: string, useRTH: bool): Future[BarSeries] {.async.} =
+        endDateTime: DateTime, duration: string, barPeriod: string,
+        whatToShow: string, useRTH: bool): Future[BarSeries] {.async.} =
   var msg = <>(REQ_HISTORICAL_DATA) & <>(self.nextReqId) & <>(contract.conId)
   msg &= <>(contract.symbol) & <>($contract.secType) & <>(
           contract.lastTradeDateOrContractMonth)
@@ -564,8 +564,8 @@ barPeriod: string, whatToShow: string, useRTH: bool): Future[BarSeries] {.async.
   result = resp.tryGet()
 
 proc reqHistoricalData*(self: IBClient, contract: Contract, duration: string,
-        barPeriod: string, whatToShow: string, useRTH: bool): Future[
-                BarSeries] {.async.} =
+        barPeriod: string, whatToShow: string,
+        useRTH: bool): Future[BarSeries] {.async.} =
   inc(self.nextReqId)
   var msg = <>(REQ_HISTORICAL_DATA) & <>(self.nextReqId) & <>(contract.conId)
   msg &= <>(contract.symbol) & <>($contract.secType) & <>(
@@ -582,8 +582,8 @@ proc reqHistoricalData*(self: IBClient, contract: Contract, duration: string,
   let resp = await sendRequestWithReqId[BarSeries](self, msg)
   result = resp.tryGet()
 
-proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[
-        OrderTracker] {.async.} =
+proc placeOrder*(self: IBClient, contract: Contract,
+  order: Order): Future[OrderTracker] {.async.} =
   let orderID = await self.reqNextOrderID()
   var msg = <>(PLACE_ORDER) & <>(orderID)
   # contract fields
@@ -674,9 +674,8 @@ proc placeOrder*(self: IBClient, contract: Contract, order: Order): Future[
   return self.orders[orderID] # return handle to the OrderTracker
 
 proc reqMktData*(self: IBClient, contract: Contract, snapshot: bool,
-        regulatory: bool = false, additionalData: seq[GenericTickType] = @[],
-
-callback: proc(ticker: Ticker) {.async.} = nil): Future[Ticker] {.async.} =
+    regulatory: bool = false, additionalData: seq[GenericTickType] = @[],
+    callback: proc(ticker: Ticker) {.async.} = nil): Future[Ticker] {.async.} =
   inc self.nextTickerID
   var genericTicks = ""
   for tickType in additionalData:
