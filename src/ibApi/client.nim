@@ -1,7 +1,7 @@
 import asyncnet, asyncfutures, asyncdispatch
 import net
 import os
-import streams, strutils, sequtils
+import streams, strutils, strformat
 import times
 import tables, sets, options, results
 
@@ -13,7 +13,6 @@ import account
 include apiConstants
 
 type
-  IBErrorMsg = tuple[code: int, msg: string]
   IBError* = object of CatchableError
   MssgCode = int
   ReqID = int
@@ -24,7 +23,7 @@ type
     mssgCode: MssgCode
     ready: bool
     payload: seq[seq[string]]
-  IBResult[T] = Result[T, IBErrorMsg]
+  IBResult[T] = Result[T, ref IBError]
   ConnectionState = enum
     csConnecting, csConnected, csDisconnected
   IBClient* = ref object
@@ -280,7 +279,7 @@ proc handleErrorMessage(self: IBClient, payload: seq[string]) =
       reqIDs.excl(reqID)
     if self.responses.hasKey(reqID):
       self.responses[reqID] = some(IBResult[Response].err (
-              code: errorCode, msg: errorMsg))
+              newException(IBError, fmt"Error code: {errorCode} - {errorMsg}")))
     if self.tickers.hasKey((reqID)):
       self.tickers[reqId].error = some((code: errorCode, msg: errorMsg))
     if self.orders.hasKey((reqID)):
@@ -293,7 +292,7 @@ proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
   if not(self.requests.hasKey(mssgCode)):
     self.requests[mssgCode] = initHashSet[int]()
   self.requests[mssgCode].incl(reqID)
-  self.responses[reqID] = none(Result[Response, IBErrorMsg])
+  self.responses[reqID] = none(Result[Response, ref IBError])
 
 proc readMessage(self: IBClient): Future[tuple[id: int, payload: seq[
         string]]] {.async.} =
@@ -320,7 +319,7 @@ proc retrieveMulti[T](self: IBClient, reqId: int): Future[IBResult[seq[T]]] {.as
       break
     poll()
   if not(self.responses.hasKey(reqId)):
-    return IBResult[seq[T]].err (code: -1, msg: "No data returned")
+    return IBResult[seq[T]].err (newException(IBError, "No data returned"))
   while true:
     let resp = self.responses[reqID].get()
     if resp.isErr:
@@ -343,7 +342,7 @@ proc retrieve[T](self: IBClient, reqId: int): Future[IBResult[T]] {.async.} =
       break
     poll()
   if not(self.responses.hasKey(reqId)):
-    return IBResult[T].err (code: -1, msg: "No data returned")
+    return IBResult[T].err (newException(IBError, "No data returned"))
   let resp = self.responses[reqID].get()
   if resp.isErr:
     result = IBResult[T].err resp.error
