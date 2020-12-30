@@ -5,14 +5,9 @@ import strutils, strformat, os
 import unittest
 
 ## Running the test suite requires a connected Gateway on port 4002
-
+var client = newIBClient()
+waitFor client.connect("127.0.0.1", 4002, 1)
 suite "Requests":
-  setup:
-    var client = newIBClient()
-    waitFor client.connect("127.0.0.1", 4002, 1)
-  teardown:
-    client.disconnect()
-
   test "Contract Details":
     let contract = Contract(symbol: "SIE", secType: SecType.Stock,
         currency: "EUR", exchange: "SMART")
@@ -45,12 +40,16 @@ suite "Requests":
     let params = waitFor client.reqScannerParams()
     check(params.xml.len != 0)
 
+  test "Scanner Subscription":
+    var scanner = initScannerSubscription()
+    scanner.instrument = "STK"
+    scanner.locationCode = "STK.US.MAJOR"
+    scanner.scanCode = "TOP_PERC_GAIN"
+    scanner.numberOfRows = 10
+    let scanResult = waitFor client.reqScannerSubscription(scanner)
+    check(scanResult.len == 10)
+    
 suite "Orders": # run this only during US trading hours
-  setup:
-    var client = newIBClient()
-    waitFor client.connect("127.0.0.1", 4002, 1)
-  teardown:
-    client.disconnect()
 
   test "Market Order":
     let contract = Contract(symbol: "AAPL", secType: SecType.Stock,
@@ -62,13 +61,11 @@ suite "Orders": # run this only during US trading hours
     var orderTracker = waitFor client.placeOrder(contract, order)
     waitForFill orderTracker
     check(orderTracker.qtyFilled == 10.0)
+    order.action = Action.Sell
+    orderTracker = waitFor client.placeOrder(contract, order)
+    waitForFill orderTracker
 
 suite "Market Data":
-  setup:
-    var client = newIBClient()
-    waitFor client.connect("127.0.0.1", 4002, 1)
-  teardown:
-    client.disconnect()
 
   test "Delayed":
     let contract = Contract(symbol: "AAPL", secType: SecType.Stock,
@@ -76,10 +73,10 @@ suite "Market Data":
     waitFor client.reqMarketDataType(MarketDataType.Delayed)
     var ticker = waitFor client.reqMktData(contract, false, false, @[
         GenericTickType.ShortableData])
-    waitFor sleepAsync(1_000)
+    waitFor sleepAsync(2_000)
     check(ticker.bid != ticker.ask)
 
-
+client.disconnect()
 
 
 

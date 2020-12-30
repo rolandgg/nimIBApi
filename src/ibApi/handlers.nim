@@ -354,6 +354,32 @@ proc handle*[T](payload: seq[string]): T =
   elif T is ScannerParams:
     fields.skip
     result.xml << fields
+  
+  elif T is ScanDataList:
+    fields.skip #version
+    fields.skip #reqID
+    var numberOfElements: int
+    numberOfElements << fields
+    result = newSeqofCap[ScanData](numberOfElements)
+    for i in 1..numberOfElements:
+      var data: ScanData
+      data.rank << fields
+      data.contract.conId << fields
+      data.contract.symbol << fields
+      data.contract.secType << fields
+      data.contract.lastTradeDateOrContractMonth << fields
+      data.contract.strike << fields
+      data.contract.right << fields
+      data.contract.exchange << fields
+      data.contract.currency << fields
+      data.contract.localSymbol << fields
+      data.marketName << fields
+      data.contract.tradingClass << fields
+      data.distance << fields
+      data.benchmark << fields
+      data.projection << fields
+      data.legsStr << fields
+      result.add(data)
 
 
 

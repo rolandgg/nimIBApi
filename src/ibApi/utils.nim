@@ -2,6 +2,7 @@ import streams
 import strutils
 import ibEnums, ibContractTypes
 import macros
+import options
 
 type
   FieldStream* = ref object
@@ -30,7 +31,12 @@ proc skip*(stream: FieldStream, by: int) =
 
 proc encode*[T](val: T): string =
   ## Defines field encodings according to EClient.cpp/EClient.h
-  when T is bool:
+  when T is Option:
+    if val.isNone():
+      return "\0"
+    else:
+      return encode(val.get())
+  elif T is bool:
     if val:
       return "1\0"
     else:
@@ -58,11 +64,24 @@ proc encode*[T](val: T): string =
     if ord(val) == UNSET_INT:
       return "\0"
     return $ord(val) & "\0"
+  elif T is seq[tuple[tag: string,value: string]]:
+    var serial = ""
+    for pair in val:
+      serial &= pair.tag & "=" & pair.value & ";"
+    return serial & "\0" 
   else:
     return $val & "\0"
 
 proc `<>`*[T](val: T): string {.inline.} =
-  return encode[T](val)
+  return encode(val)
+
+proc `<<`*[T](stream: StringStream, val: T): StringStream {.inline,discardable.} =
+  stream.write(encode(val))
+  return stream
+
+proc toString*(stream: StringStream): string {.inline.} =
+  stream.setPosition(0)
+  result = stream.readAll()
 
 proc decode*[T](field: string): T =
   when T is string:

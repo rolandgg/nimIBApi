@@ -1,4 +1,11 @@
-import times
+import options
 
-let start = initDuration()
-echo start.inSeconds
+proc encode[T](val: T) =
+  when T is Option:
+    echo "bla"
+    echo typeof(val.get())
+  else:
+    echo "blah"
+
+encode(1.0)
+encode(some(1.0))

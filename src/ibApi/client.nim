@@ -81,16 +81,16 @@ proc disconnect*(self: IBClient) =
 
 # Handlers for messages for which no requests are exposed
 
-proc handleManagedAcctsMsg(self: IBClient, payload: seq[string]) =
+proc handleManagedAcctsMsg(self: IBClient, payload: seq[string]) {.inline.} =
   self.accountList = payload[1].split(",")
 
-proc handleCurrentTimeMsg(self: IBClient, payload: seq[string]) =
+proc handleCurrentTimeMsg(self: IBClient, payload: seq[string]) {.inline.} =
   self.serverTime = fromUnix(parseInt(payload[1]))
-  echo "Heartbeat at " & $self.serverTime
+  when not defined(release):
+    echo "Heartbeat at " & $self.serverTime
 
-proc handleNextOrderIdMsg(self: IBClient, payload: seq[string]) =
+proc handleNextOrderIdMsg(self: IBClient, payload: seq[string]) {.inline.} =
   self.nextOrderID = parseInt(payload[1])
-  echo "Next reqId received " & $self.nextReqID
 
 proc handleAcctValueUpdateMsg(self: IBClient, payload: seq[string]) =
   let key = payload[1]
@@ -263,7 +263,6 @@ proc handleResponse(self: IBClient, thisReqID: int, mssgCode: int, payload: seq[
               reqID: thisReqID, mssgCode: mssgCode, payload: @[payload], ready: true))
       self.requests[mssgCode].excl(thisReqID)
 
-
 proc handleErrorMessage(self: IBClient, payload: seq[string]) =
   var fields = newFieldStream(payload)
   fields.skip
@@ -273,8 +272,11 @@ proc handleErrorMessage(self: IBClient, payload: seq[string]) =
   reqID << fields
   errorCode << fields
   errorMsg << fields
+  # error codes that are no errors (mostly related to market data subscriptions):
+  # - 492: warning for lacking subscriptions with scanner requests
+  const ignoreList = [492]
 
-  if reqID > -1:
+  if reqID > -1 and not(errorCode in ignoreList):
     for mssgCode, reqIDs in self.requests.mpairs:
       reqIDs.excl(reqID)
     if self.responses.hasKey(reqID):
@@ -285,14 +287,16 @@ proc handleErrorMessage(self: IBClient, payload: seq[string]) =
     if self.orders.hasKey((reqID)):
       self.orders[reqId].error = some((code: errorCode, msg: errorMsg))
 
-  echo "INFO: " & errorMsg
+  when not defined(release):
+    echo "INFO: " & errorMsg
 
-proc registerReq(self: IBClient, reqID: ReqID, mssgCode: MssgCode) =
+proc registerReq(self: IBClient, incoming: Incoming) =
   ## adds the request both to the pending requests and pending responses tables
+  let mssgCode = ord(incoming)
   if not(self.requests.hasKey(mssgCode)):
     self.requests[mssgCode] = initHashSet[int]()
-  self.requests[mssgCode].incl(reqID)
-  self.responses[reqID] = none(Result[Response, ref IBError])
+  self.requests[mssgCode].incl(self.nextReqID)
+  self.responses[self.nextReqID] = none(Result[Response, ref IBError])
 
 proc readMessage(self: IBClient): Future[tuple[id: int, payload: seq[
         string]]] {.async.} =
@@ -369,13 +373,11 @@ proc sendRequestWithReqIdMulti[T](self: IBClient, msg: string): Future[IBResult[
   inc self.nextReqID
   result = await retrieveMulti[T](self, self.nextReqID-1)
 
-
 proc sendRequestWithReqId[T](self: IBClient, msg: string): Future[IBResult[
         T]] {.async.} =
   asyncCheck self.sendMessage(msg)
   inc self.nextReqID
   result = await retrieve[T](self, self.nextReqID-1)
-
 
 proc sendOrder(self: IBClient, msg: string, orderID: OrderID): Future[
         OrderTracker] {.async.} =
@@ -407,6 +409,11 @@ proc reqAcctUpdate(self: IBClient, subscribe: bool) {.async.} =
   self.account.updated = false
   var msg = <>(REQ_ACCT_DATA) & <>(2) & <>(subscribe) & <>("")
   waitFor self.sendMessage(msg)
+
+proc reqCancelScannerSubscription(self: IBClient, reqID: int) {.async.} =
+  var msg = newStringStream("")
+  msg << CANCEL_SCANNER_SUBSCRIPTION << 1 << reqID
+  asyncCheck self.sendMessage(msg.toString())
 
 proc newIBClient*(): IBClient =
   new(result)
@@ -465,13 +472,6 @@ proc listen(self: IBClient): Future[void] {.async.} =
       for reqId in self.requests[ord(Incoming.CONTRACT_DATA)]:
         if reqId == thisReqId:
           self.responses[reqID].get().get().ready = true
-    of Incoming.HISTORICAL_DATA:
-      let thisReqID = parseInt(fields[0])
-      for reqID in self.requests[messageCode]:
-        if reqID == thisReqID:
-          self.responses[reqID] = some(IBResult[Response].ok Response(
-                  reqId: thisReqID, mssgCode: messageCode, payload: @[
-                  fields], ready: true))
     of Incoming.OPEN_ORDER:
       self.handleOpenOrderUpdateMsg(fields)
     of Incoming.ORDER_STATUS:
@@ -489,17 +489,19 @@ proc listen(self: IBClient): Future[void] {.async.} =
       self.handleTickMsg(fields, thisTickerId, Incoming(messageCode))
     of Incoming.MARKET_DATA_TYPE:
       self.handleMarketDataTypeMsg(fields)
-    of Incoming.FUNDAMENTAL_DATA:
+    of Incoming.FUNDAMENTAL_DATA, 
+       Incoming.SCANNER_DATA:
       let thisReqID = parseInt(fields[1])
       self.handleResponse(thisReqID, messageCode, fields)
-    of Incoming.SYMBOL_SAMPLES:
+    of Incoming.SYMBOL_SAMPLES,
+       Incoming.HISTORICAL_DATA:
       let thisReqID = parseInt(fields[0])
       self.handleResponse(thisReqID, messageCode, fields)
-    of Incoming.ERR_MSG:
-      self.handleErrorMessage(fields)
     of Incoming.SCANNER_PARAMETERS:
       let thisReqID = -1 #no reqID transmitted for this request
       self.handleResponse(thisReqID, messageCode, fields)
+    of Incoming.ERR_MSG:
+      self.handleErrorMessage(fields)
     else:
       discard
       # self.requests[messageCode] = @[] #delete served requests
@@ -540,7 +542,7 @@ proc reqContractDetails*(self: IBClient, contract: Contract): Future[seq[
   msg &= <>(contract.localSymbol) & <>(contract.tradingClass) & <>(
           contract.includeExpired)
   msg &= <>(contract.secIdType) & <>(contract.secId)
-  self.registerReq(self.nextReqId, ord(Incoming.CONTRACT_DATA))
+  self.registerReq(Incoming.CONTRACT_DATA)
   let resp = await sendRequestWithReqIdMulti[ContractDetails](self, msg)
   result = resp.tryGet()
 
@@ -558,7 +560,7 @@ proc reqHistoricalData*(self: IBClient, contract: Contract,
   msg &= <>(endDateTime.format("yyyyMMdd HH:mm:ss") & " UTC") & <>(
           barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) & <>(1)
   msg &= <>(false) & <>("")
-  self.registerReq(self.nextReqId, ord(Incoming.HISTORICAL_DATA))
+  self.registerReq(Incoming.HISTORICAL_DATA)
   let resp = await sendRequestWithReqId[BarSeries](self, msg)
   result = resp.tryGet()
 
@@ -577,7 +579,7 @@ proc reqHistoricalData*(self: IBClient, contract: Contract, duration: string,
   msg &= <>("") & <>(barPeriod) & <>(duration) & <>(useRTH) & <>(whatToShow) &
           <>(1)
   msg &= <>(false) & <>("")
-  self.registerReq(self.nextReqId, ord(Incoming.HISTORICAL_DATA))
+  self.registerReq(Incoming.HISTORICAL_DATA)
   let resp = await sendRequestWithReqId[BarSeries](self, msg)
   result = resp.tryGet()
 
@@ -707,26 +709,56 @@ proc reqFundamentalData*(self: IBClient, contract: Contract,
   msg &= <>(contract.currency) & <>(contract.localSymbol)
   msg &= <>(kind)
   msg &= <>("") #tag value list always empty
-  self.registerReq(self.nextReqId, ord(Incoming.FUNDAMENTAL_DATA))
+  self.registerReq(Incoming.FUNDAMENTAL_DATA)
   let resp = await sendRequestWithReqId[FundamentalReport](self, msg)
   result = resp.tryGet()
 
 proc reqMatchingSymbol*(self: IBClient, pattern: string): Future[
         ContractDescriptionList] {.async.} =
   var msg = <>(REQ_MATCHING_SYMBOLS) & <>(self.nextReqId) & <>(pattern)
-  self.registerReq(self.nextReqId, ord(Incoming.SYMBOL_SAMPLES))
+  self.registerReq(Incoming.SYMBOL_SAMPLES)
   let resp = await sendRequestWithReqId[ContractDescriptionList](self, msg)
   result = resp.tryGet()
 
 proc reqScannerParams*(self: IBClient): Future[ScannerParams] {.async.} =
   var msg = <>(REQ_SCANNER_PARAMETERS) & <>(1)
-  self.registerReq(self.nextReqId, ord(Incoming.SCANNER_PARAMETERS))
+  self.registerReq(Incoming.SCANNER_PARAMETERS)
   let resp = await sendRequestWithReqId[ScannerParams](self, msg)
   result = resp.tryGet()
 
-# proc reqScannerSubscription*(self: IBClient, reqId: int,
-#   subscription: ScannerSubscription,
-#   scannerSubscriptionOptions, scannerSubscriptionFilterOptions: seq[tuple[string,string]]) = discard
+proc reqScannerSubscription*(self: IBClient,
+  subscription: ScannerSubscription;
+  scannerSubscriptionOptions,
+  scannerSubscriptionFilterOptions: seq[tuple[tag: string,value: string]] = @[]
+  ): Future[ScanDataList] {.async.} =
+  var msg = newStringStream("")
+  msg << REQ_SCANNER_SUBSCRIPTION << self.nextReqID << subscription.numberOfRows
+  msg << subscription.instrument << subscription.locationCode
+  msg << subscription.scanCode << subscription.abovePrice << subscription.belowPrice
+  msg << subscription.aboveVolume << subscription.marketCapAbove
+  msg << subscription.marketCapBelow << subscription.moodyRatingAbove
+  msg << subscription.moodyRatingBelow << subscription.spRatingAbove
+  msg << subscription.spRatingBelow << subscription.maturityDateAbove
+  msg << subscription.maturityDateBelow << subscription.couponRateAbove
+  msg << subscription.couponRateBelow << subscription.excludeConvertible
+  msg << subscription.averageOptionVolumeAbove << subscription.scannerSettingPairs
+  msg << subscription.stockTypeFilter
+  #encode scannerSubscriptionOptions
+  msg << scannerSubscriptionOptions
+  #encode scannerSubscriptionFilterOptions
+  msg << scannerSubscriptionFilterOptions
+  
+  self.registerReq(Incoming.SCANNER_DATA)
+  let reqID = self.nextReqID
+  let resp = await sendRequestWithReqId[ScanDataList](self, msg.toString())
+  asyncCheck self.reqCancelScannerSubscription(reqID)
+  result = resp.tryGet()
+
+
+
+  
+
+
 
 
 
