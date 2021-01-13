@@ -4,6 +4,7 @@ type
   ShortDifficulty* = enum
     sdEasy = "Available", sdHard = "Difficult", sdImpossible = "Unavailable", sdUnset = ""
   Ticker* = ref object
+    id*: int
     contract*: Contract
     bid*, ask*, lastTrade*: float
     bidSize*, askSize*, lastTradeSize*: int

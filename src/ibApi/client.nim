@@ -191,7 +191,7 @@ proc handleOrderStatusUpdateMsg(self: IBClient, payload: seq[string]) =
     self.orders[orderId].orderStatus = orderStatus
 
 proc handleOpenOrderUpdateMsg(self: IBClient, payload: seq[string]) =
-  let tracker = handle[OrderTracker](payload)
+  var tracker = handle[OrderTracker](payload)
   let orderId = tracker.order.orderId
   if self.orders.hasKey(orderId):
     self.orders[orderId].contract = tracker.contract
@@ -754,9 +754,15 @@ proc reqScannerSubscription*(self: IBClient,
   asyncCheck self.reqCancelScannerSubscription(reqID)
   result = resp.tryGet()
 
+proc cancel*(self: IBClient, orderTracker: OrderTracker) =
+  var msg = newStringStream("")
+  msg << CANCEL_ORDER << 1 << orderTracker.order.orderID
+  waitFor self.sendMessage(msg.toString())
 
-
-  
+proc cancel*(self: IBClient, ticker: Ticker) =
+  var msg = newStringStream("")
+  msg << CANCEL_MKT_DATA << 2 << ticker.id
+  waitFor self.sendMessage(msg.toString()) 
 
 
 

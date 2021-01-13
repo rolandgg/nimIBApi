@@ -172,6 +172,8 @@ proc parseSector(report: var FundamentalReport) =
     if x.kind == xmlElementEnd:
       if x.elementName == "Sector":
         break
+    if x.kind == xmlEof:
+      break
 
 proc parseMarketData(report: var FundamentalReport) =
   if report.kind != Estimates:
@@ -211,6 +213,8 @@ proc parseMarketData(report: var FundamentalReport) =
     if x.kind == xmlElementEnd:
       if x.elementName == "MarketData":
         break
+    if x.kind == xmlEof:
+      break
 
 proc parseActuals(report: var FundamentalReport, valueType: string = "EPS") =
   if valueType != "EPS" or report.kind != Estimates:

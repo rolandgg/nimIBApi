@@ -1,11 +1,27 @@
-import options
+import tables
 
-proc encode[T](val: T) =
-  when T is Option:
-    echo "bla"
-    echo typeof(val.get())
-  else:
-    echo "blah"
+type
+  Tool = ref object
+    widget: Widget
+  Widget = ref object
+    tools: Table[int,Tool]
 
-encode(1.0)
-encode(some(1.0))
+proc newWidget(): Widget =
+  new(result)
+  result.tools = initTable[int,Tool]()
+
+proc newTool(w: Widget) = Tool =
+  new(result)
+  result.w = Widget
+  
+
+proc finalizer(x: Widget) =
+  echo "bla"
+
+proc main() =
+  var x: Widget = newWidget()
+  x.tools
+  new(x,finalizer)
+
+if isMainModule:
+  main()
