@@ -438,7 +438,22 @@ proc ttm(report: FundamentalReport, key: string): float =
       if offSet.content.hasKey(key):
         ttm -= statement.content[key]
       weeksCovered = 52
-  if weeksCovered != 52: # in this case we have a) cumulative reporting and b) idx points to a 12 month period report (i.e. annual)
+  if weeksCovered < 52: #no or not sufficiently quartely data available at all
+    let fillratio = (52.0-float(weeksCovered)) / 52
+    case statementType
+    of ibIncomeStatement:
+      if report.incomeStatementsA.len > 0 and report.incomeStatementsA[0].content.hasKey(key):
+        ttm += fillratio * report.incomeStatementsA[0].content[key]
+      else:
+        return 0
+    of ibCashflowStatement:
+      if report.cashflowStatementsA.len > 0 and report.cashflowStatementsA[0].content.hasKey(key):
+        ttm += fillratio * report.cashflowStatementsA[0].content[key]
+      else:
+        return 0
+    else:
+      raise newException(ValueError, "Trailing twelve month value not available for balance sheet values!")
+  if weeksCovered > 52: # in this case we have a) cumulative reporting and b) idx points to a 12 month period report (i.e. annual)
     let ratio = float(weeksCovered - 52) / 52.0 # we correct by a pro rate deduction
     if statementList[idx].content.hasKey(key):
       ttm -= ratio*statementList[idx].content[key]
