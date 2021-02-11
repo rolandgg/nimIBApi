@@ -431,12 +431,12 @@ proc ttm(report: FundamentalReport, key: string): float =
     if weeksCovered < 52:
       idx += period div 13
     elif weeksCovered > 52:
-      let shift = (weeksCovered - 52) div 13
+      let shift = 4 - (weeksCovered - 52) div 13
       if idx+shift >= statementList.len:
         break
       let offSet = statementList[idx+shift]
       if offSet.content.hasKey(key):
-        ttm -= statement.content[key]
+        ttm -= offset.content[key]
       weeksCovered = 52
   if weeksCovered < 52: #no or not sufficiently quartely data available at all
     let fillratio = (52.0-float(weeksCovered)) / 52
