@@ -133,8 +133,8 @@ type
   OptionRight* {.pure.} = enum
     Unset = ""
     Undefined = "?"
-    Put = "PUT"
-    Call = "CALL"
+    Put = "P"
+    Call = "C"
 
   SecIdType* {.pure.} = enum
 

@@ -140,7 +140,7 @@ proc handlePortfolioValueMsg(self: IBClient, payload: seq[string]) =
     contract.secType = parseEnum[SecType](payload[3])
     contract.lastTradeDateOrContractMonth = payload[4]
     contract.strike = parseFloat(payload[5])
-    contract.right = OptionRight(parseInt(payload[6]))
+    contract.right = parseEnum[OptionRight](payload[6])
     if version > 7:
       contract.multiplier = payload[7]
       contract.primaryExchange = payload[8]
